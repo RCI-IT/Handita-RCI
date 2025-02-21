@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import EmployeeValidation from "../validations/EmployeeValidation";
 import unlinkAsync from "../config/deleteImageCloudinary";
+import { UploadImageEmployee } from "../utils/UploadImageEmployees";
 
 //Handling error
 import { StatusCodes } from "http-status-codes";
@@ -165,100 +166,100 @@ const EmployeeController = {
       return handleServerError(res, "Error creating. Please try again later.");
     }
   },
-  // putEmployee: async (req: Request, res: Response) => {
-  //   const employeeId = req.params.id;
-  //   try {
-  //     const { error, value }: any = EmployeeValidation.validate(req.body);
-  //     if (!error) {
-  //       const getFilenameOrDefault = (
-  //         file?: Express.Multer.File
-  //       ): string | null => {
-  //         return file ? file.filename : null;
-  //       };
-  //       const { image, idCard, taxCard, familyCard, diploma } = req.files as {
-  //         [fieldname: string]: Express.Multer.File[];
-  //       };
-  //       const existingEmployee = await prisma.employees.findUnique({
-  //         where: {
-  //           id: employeeId,
-  //         },
-  //         include: {
-  //           document: true,
-  //         },
-  //       });
-  //       if (!existingEmployee) {
-  //         return handleUnprocessableEntityResponse(
-  //           res,
-  //           `${existingEmployee} does not exist`
-  //         );
-  //       }
-  //       const updatedEmployee = await prisma.employees.update({
-  //         where: {
-  //           id: employeeId,
-  //         },
-  //         data: {
-  //           image: getFilenameOrDefault(image?.[0]) ?? existingEmployee.image,
-  //           ...value,
-  //           document: {
-  //             update: {
-  //               idCard: idCard?.[0]
-  //                 ? getFilenameOrDefault(idCard[0])
-  //                 : existingEmployee.document?.idCard,
-  //               taxCard: taxCard?.[0]
-  //                 ? getFilenameOrDefault(taxCard[0])
-  //                 : existingEmployee.document?.taxCard,
-  //               familyCard: familyCard?.[0]
-  //                 ? getFilenameOrDefault(familyCard[0])
-  //                 : existingEmployee.document?.familyCard,
-  //               diploma: diploma?.[0]
-  //                 ? getFilenameOrDefault(diploma[0])
-  //                 : existingEmployee.document?.diploma,
-  //             },
-  //           },
-  //         },
-  //         include: {
-  //           document: true,
-  //         },
-  //       });
-  //       const deleteFileIfExists = async (filePath: any) => {
-  //         if (
-  //           filePath &&
-  //           filePath !== updatedEmployee.image &&
-  //           filePath !== updatedEmployee.document?.idCard &&
-  //           filePath !== updatedEmployee.document?.taxCard &&
-  //           filePath !== updatedEmployee.document?.familyCard &&
-  //           filePath !== updatedEmployee.document?.diploma
-  //         ) {
-  //           try {
-  //             await unlinkAsync(`public/images/employees/${filePath}`);
-  //           } catch (error) {
-  //             console.error(`Failed to delete file: ${filePath}`, error);
-  //           }
-  //         }
-  //       };
-  //       await deleteFileIfExists(existingEmployee.image);
-  //       await deleteFileIfExists(existingEmployee.document?.idCard);
-  //       await deleteFileIfExists(existingEmployee.document?.taxCard);
-  //       await deleteFileIfExists(existingEmployee.document?.familyCard);
-  //       await deleteFileIfExists(existingEmployee.document?.diploma);
+  putEmployee: async (req: Request, res: Response) => {
+    const employeeId = req.params.id;
+      try {
+        const { error, value }: any = EmployeeValidation.validate(req.body);
+    //     if (!error) {
+    //       const getFilenameOrDefault = (
+    //         file?: Express.Multer.File
+    //       ): string | null => {
+    //         return file ? file.filename : null;
+    //       };
+    //       const { image, idCard, taxCard, familyCard, diploma } = req.files as {
+    //         [fieldname: string]: Express.Multer.File[];
+    //       };
+    //       const existingEmployee = await prisma.employees.findUnique({
+    //         where: {
+    //           id: employeeId,
+    //         },
+    //         include: {
+    //           document: true,
+    //         },
+    //       });
+    //       if (!existingEmployee) {
+    //         return handleUnprocessableEntityResponse(
+    //           res,
+    //           `${existingEmployee} does not exist`
+    //         );
+    //       }
+    //       const updatedEmployee = await prisma.employees.update({
+    //         where: {
+    //           id: employeeId,
+    //         },
+    //         data: {
+    //           image: getFilenameOrDefault(image?.[0]) ?? existingEmployee.image,
+    //           ...value,
+    //           document: {
+    //             update: {
+    //               idCard: idCard?.[0]
+    //                 ? getFilenameOrDefault(idCard[0])
+    //                 : existingEmployee.document?.idCard,
+    //               taxCard: taxCard?.[0]
+    //                 ? getFilenameOrDefault(taxCard[0])
+    //                 : existingEmployee.document?.taxCard,
+    //               familyCard: familyCard?.[0]
+    //                 ? getFilenameOrDefault(familyCard[0])
+    //                 : existingEmployee.document?.familyCard,
+    //               diploma: diploma?.[0]
+    //                 ? getFilenameOrDefault(diploma[0])
+    //                 : existingEmployee.document?.diploma,
+    //             },
+    //           },
+    //         },
+    //         include: {
+    //           document: true,
+    //         },
+    //       });
+    //       const deleteFileIfExists = async (filePath: any) => {
+    //         if (
+    //           filePath &&
+    //           filePath !== updatedEmployee.image &&
+    //           filePath !== updatedEmployee.document?.idCard &&
+    //           filePath !== updatedEmployee.document?.taxCard &&
+    //           filePath !== updatedEmployee.document?.familyCard &&
+    //           filePath !== updatedEmployee.document?.diploma
+    //         ) {
+    //           try {
+    //             await unlinkAsync(`public/images/employees/${filePath}`);
+    //           } catch (error) {
+    //             console.error(`Failed to delete file: ${filePath}`, error);
+    //           }
+    //         }
+    //       };
+    //       await deleteFileIfExists(existingEmployee.image);
+    //       await deleteFileIfExists(existingEmployee.document?.idCard);
+    //       await deleteFileIfExists(existingEmployee.document?.taxCard);
+    //       await deleteFileIfExists(existingEmployee.document?.familyCard);
+    //       await deleteFileIfExists(existingEmployee.document?.diploma);
 
-  //       res.status(StatusCodes.OK).json(updatedEmployee);
-  //     } else {
-  //       return handleUnprocessableEntityResponse(res, error.details[0].message);
-  //     }
-  //   } catch (err: any) {
-  //     if (err.code === "P1000" && err.message.includes("5432")) {
-  //       return handleServerError(
-  //         res,
-  //         "Unable to connect to the database server. Please try again later."
-  //       );
-  //     }
-  //     return handleServerError(
-  //       res,
-  //       "Internal Server Error. Please try again later."
-  //     );
-  //   }
-  // },
+    //       res.status(StatusCodes.OK).json(updatedEmployee);
+    //     } else {
+    //       return handleUnprocessableEntityResponse(res, error.details[0].message);
+    //     }
+      } catch (err: any) {
+    //     if (err.code === "P1000" && err.message.includes("5432")) {
+    //       return handleServerError(
+    //         res,
+    //         "Unable to connect to the database server. Please try again later."
+    //       );
+    //     }
+    //     return handleServerError(
+    //       res,
+    //       "Internal Server Error. Please try again later."
+    //     );
+      }
+  },
   // deleteEmployee: async (req: Request, res: Response) => {
   //   try {
   //     const employeeId: string = req.params.id;
