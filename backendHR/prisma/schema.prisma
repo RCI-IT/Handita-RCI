@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employees {
+  id             String                 @id @default(uuid())
+  employeeNumber String                 @unique
+  idCardNumber   String                 @unique
+  image          String
+  fullName       String
+  birth          String
+  birthDate      DateTime               @db.Date
+  gender         String
+  religion       String
+  address        String
+  email          String                 @unique
+  phone          String                 @unique
+  education      String
+  school         String
+  major          String
+  position       String
+  status         String
+  hireDate       DateTime?              @db.Date
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  document       EmployeeDocuments?
+  sertificate    EmployeeSertification?
+}
+
+model EmployeeDocuments {
+  id         String    @id @default(uuid())
+  employeeId String    @unique
+  idCard     String
+  taxCard    String?
+  familyCard String
+  diploma    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  employee   Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model EmployeeSertification {
+  id         String    @id @default(uuid())
+  image      String?
+  employeeId String    @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  employee   Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
