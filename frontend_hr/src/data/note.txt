@@ -1,0 +1,150 @@
+2. Menggunakan useKaryawanData di Komponen
+
+Sekarang, di komponen yang membutuhkan data karyawan, kamu cukup memanggil custom hook useKaryawanData() yang telah kita buat.
+
+import { useState } from 'react';
+import { useKaryawanData } from '@/utils/fetchKaryawan';
+import { TypeKaryawan } from '@/types/daftarKaryawan';
+
+// Komponen halaman Karyawan
+const KaryawanPage = () => {
+  const { data, error, isLoading } = useKaryawanData();
+  const [newKaryawan, setNewKaryawan] = useState({
+    fullName: '',
+    position: '',
+    email: '',
+  });
+
+  // Jika data masih dalam proses loading
+  if (isLoading) return <div>Loading...</div>;
+
+  // Jika terjadi error saat mengambil data
+  if (error) return <div>Error: {error.message}</div>;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewKaryawan((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddKaryawan = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = await fetch('http://localhost:3000/api/karyawan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newKaryawan),
+    });
+
+    const newEmployee = await response.json();
+
+    // Triggering revalidation of the SWR cache to update the displayed data
+    mutate('http://localhost:3000/api/karyawan');
+
+    setNewKaryawan({
+      fullName: '',
+      position: '',
+      email: '',
+    });
+  };
+
+  return (
+    <div>
+      <h1>Data Karyawan</h1>
+
+      {/* Form untuk Menambah Karyawan */}
+      <form onSubmit={handleAddKaryawan}>
+        <input
+          type="text"
+          name="fullName"
+          value={newKaryawan.fullName}
+          onChange={handleInputChange}
+          placeholder="Full Name"
+          required
+        />
+        <input
+          type="text"
+          name="position"
+          value={newKaryawan.position}
+          onChange={handleInputChange}
+          placeholder="Position"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          value={newKaryawan.email}
+          onChange={handleInputChange}
+          placeholder="Email"
+          required
+        />
+        <button type="submit">Add Karyawan</button>
+      </form>
+
+      <ul>
+        {data?.map((karyawan) => (
+          <li key={karyawan.id}>
+            <h3>{karyawan.fullName}</h3>
+            <p>{karyawan.position}</p>
+            <p>{karyawan.email}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default KaryawanPage;
+
+3. Menggunakan mutate untuk Memperbarui Data
+
+Jika kamu menambah, memperbarui, atau menghapus data, kamu bisa menggunakan mutate dari SWR untuk menyegarkan cache data sehingga halaman segera menampilkan perubahan terbaru tanpa perlu menunggu pemanggilan API lagi.
+
+import useSWR, { mutate } from 'swr';
+
+// Trigger revalidation of the SWR cache
+mutate('http://localhost:3000/api/karyawan');
+
+4. Menangani Update dan Delete
+
+Untuk Update dan Delete, kamu hanya perlu menambah atau menghapus data dari API dan kemudian memanggil mutate untuk memperbarui cache SWR.
+Update Data:
+
+const handleUpdateKaryawan = async (id: string, updatedData: TypeKaryawan) => {
+  const response = await fetch(`http://localhost:3000/api/karyawan/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updatedData),
+  });
+
+  const updatedEmployee = await response.json();
+
+  // Memperbarui cache
+  mutate('http://localhost:3000/api/karyawan');
+};
+
+Delete Data:
+
+const handleDeleteKaryawan = async (id: string) => {
+  await fetch(`http://localhost:3000/api/karyawan/${id}`, {
+    method: 'DELETE',
+  });
+
+  // Memperbarui cache
+  mutate('http://localhost:3000/api/karyawan');
+};
+
+5. Kesimpulan
+
+Dengan cara ini, kamu telah berhasil memisahkan logika pengambilan data dari komponen utama dan membuat kode lebih bersih dan terstruktur:
+
+    fetchKaryawan.ts: Mengambil data dari API dan menyediakan custom hook useKaryawanData yang dapat dipakai ulang di berbagai komponen.
+    KaryawanPage.tsx: Menggunakan hook useKaryawanData untuk menampilkan data, menangani error dan loading state, serta melakukan CRUD.
+
+Dengan pendekatan ini, kode menjadi lebih modular dan lebih mudah untuk mengelola pengambilan data di berbagai tempat dalam aplikasi Next.js kamu.

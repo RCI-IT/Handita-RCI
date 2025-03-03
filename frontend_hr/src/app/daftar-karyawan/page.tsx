@@ -7,7 +7,7 @@ import { FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock } from "react-icons/fa6";
-import { TypeKaryawan, karyawanData } from "@/types/daftarKaryawan";
+import { Employee, karyawanData } from "@/types/daftarKaryawan";
 import { ColumnDef } from "@tanstack/react-table";
 // import axios from "axios";
 import Table from "@/components/tabel";
@@ -16,38 +16,38 @@ import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
 export default function DaftarKaryawan() {
-  const columns: ColumnDef<TypeKaryawan>[] = [
+  const columns: ColumnDef<Employee>[] = [
     {
-      id: "Foto",
+      id: "image",
       header: "Foto",
-      accessorKey: "foto",
+      accessorKey: "image",
       cell: (ctx) => ctx.getValue(),
     },
     {
-      header: "Nama",
-      accessorKey: "nama",
+      header: "fullName",
+      accessorKey: "fullName",
       cell: (ctx) => ctx.getValue(),
     },
     {
       header: "Id Karyawan",
-      accessorKey: "idKaryawan",
+      accessorKey: "idCardNumber",
       cell: (ctx) => ctx.getValue(),
     },
     {
       header: "Posisi",
-      accessorKey: "posisi",
+      accessorKey: "position",
       cell: (ctx) => ctx.getValue(),
     },
     {
       id: "Aksi",
       header: "Aksi",
-      accessorKey: "idKaryawan",
+      accessorKey: "id",
       cell: (ctx) =>{
-        const idKaryawan = ctx.row.original.idKaryawan; // Mengakses data asli dari baris
+        const idKaryawan = ctx.row.original.id; // Mengakses data asli dari baris
         if (!idKaryawan) return null; // Menghindari jika idKaryawan tidak ada
         return (
         <div className="flex justify-center place-items-center space-x-5">
-          <Link href={`/daftar-karyawan?id=${idKaryawan}`}>
+          <Link href={`/${idKaryawan}`}>
             <TbEdit className={`text-2xl text-blue-600`} />
           </Link>
           <Link href={`/daftar-karyawan?id=${idKaryawan}`}>
