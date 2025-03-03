@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from "express";
+import multer from "multer";
 import dotenv from "dotenv"; // untuk membaca environment
 import { StatusCodes } from "http-status-codes"; // Untuk error handling
 // import userRoutes from "./routes/UserRoutes"
@@ -26,6 +27,21 @@ app.use(cors(corsOptions));
 
 // app.use("/v1", userRoutes);
 app.use('/api/employees', Employee);
+
+
+
+const upload = multer({ storage: multer.memoryStorage() }); // Middleware untuk menangani multipart/form-data
+
+app.post('/upload',upload.any(), (req, res) => {
+    console.log('Body:', req.body); // Untuk melihat data teks
+    console.log('Files:', req.files); // Untuk melihat data file (jika ada)
+
+    res.json({ message: 'Data diterima', data: req.body, files: req.files });
+});
+
+
+
+
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Prisma with PostgreSQL!");
