@@ -14,22 +14,41 @@ export const fetchKaryawan = async (id?: string) => {
 
 // utils/fetchKaryawan.ts
 import useSWR from 'swr';
-import { TypeKaryawan } from '@/types/daftarKaryawan';
+import { Employee } from '@/types/daftarKaryawan';
 
 // URL API Karyawan
-const API_URL = 'http://localhost:3000/api/karyawan';
+const API_URL = 'http://localhost:4000/api/employees';
+
+// Interface untuk struktur error response
+interface ErrorResponse {
+  message: string;
+}
 
 // Fungsi fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Custom hook untuk mengambil data karyawan
 export const useKaryawanData = () => {
-  const { data, error } = useSWR<TypeKaryawan[]>(API_URL, fetcher);
+  const { data, error } = useSWR<Employee[] | ErrorResponse>(API_URL, fetcher);
+  const isNotFound = data && (data as ErrorResponse).message?.includes('not found'); 
 
   return {
-    data,
+    data: data || [],
     error,
     isLoading: !data && !error,
+    isNotFound,
   };
 };
 
+export const useKaryawanDataDetail = (id: string) => {
+  const { data, error } = useSWR<Employee | ErrorResponse>(`${API_URL}/${id}`, fetcher);
+
+  const isNotFound = data && (data as ErrorResponse).message?.includes('not found'); // Memeriksa pesan error
+
+  return {
+    data: data || null,
+    error,
+    isLoading: !data && !error,
+    isNotFound,
+  };
+}

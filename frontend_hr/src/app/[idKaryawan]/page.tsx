@@ -1,10 +1,11 @@
 "use client";
 import Breadcrumb from "@/components/breadcrumb";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { TypeKaryawan } from "@/types/daftarKaryawan";
 import useSWR from "swr";
+import { useKaryawanDataDetail } from "@/data/api";
 
 const Fetcher = async (url: string) => {
   try {
@@ -33,31 +34,38 @@ const Fetcher = async (url: string) => {
 export default function DetailKaryawan() {
   // const [loading, setLoading] = useState<boolean>(true); // Menandakan status loading
 
-  const searchParams = useSearchParams(); // Mengakses parameter id dari URL
-  const id = searchParams.get("idKaryawan"); // Retrieve the 'id' parameter from the URL query string
+  const params = useParams(); // Retrieve the dynamic parameters
 
-  // const url = `${process.env.NEXT_PUBLIC_API_URL}${id}`; // Menggunakan variabel lingkungan
-  // const { data: karyawanData, error } = useSWR<TypeKaryawan>(url, Fetcher);
+  const { idKaryawan } = params; // Access the 'id' parameter from the URL
 
-  // useEffect(() => {
-  //   if (karyawanData || error) {
-  //     // Setelah data diterima atau ada error, set loading ke false
-  //     setLoading(false);
-  //   }
-  // }, [karyawanData, error]);
+  const validId = idKaryawan && !Array.isArray(idKaryawan) ? idKaryawan : "";
+  const { data, error, isLoading, isNotFound } = useKaryawanDataDetail(validId);
 
-  // if (loading) {
-  //   return <div>Loading...</div>; // Tampilkan loading jika data belum tersedia
-  // }
+  // If idKaryawan is invalid (null, undefined, or an array), render an error
+  if (!idKaryawan || Array.isArray(idKaryawan)) {
+    return <div>Error: Invalid ID provided in the URL query string.</div>;
+  }
 
-  // if (error) {
-  //   // Tangani error jika diperlukan
-  //   console.error("Error fetching data:", error);
-  // }
+  // Handle loading state
+  if (isLoading) return <div>Loading...</div>;
 
-  // if (!karyawanData) {
-  //   return <div>Data karyawan tidak ditemukan</div>; // Tampilkan pesan jika data karyawan tidak ditemukan
-  // }
+  if (error) return <div>Error: {error.message}</div>;
+
+  // Periksa apakah respons memiliki pesan error
+  if (isNotFound) return <div>No employee found with ID {idKaryawan}</div>;
+
+  // Conditional check to ensure `data` is available before rendering.
+
+  if ((!data && !isLoading) || data === null) {
+    console.log("Data is missing:", data); // Check if data is undefined
+    return <div>No employee data found</div>;
+  }
+
+  // Check if `data` is an ErrorResponse by checking if it has a `message` property
+  if ("message" in data) {
+    // If data has a message, it is an ErrorResponse
+    return <div>Error: {data.message}</div>;
+  }
 
   return (
     <div className="w-full pt-8 pb-6 pr-6 space-y-4">
@@ -82,12 +90,13 @@ export default function DetailKaryawan() {
                 alt="KTP"
                 layout="fill"
                 objectFit="cover"
+                objectPosition=""
                 className="rounded-lg"
               />
             </div>
             <div className="w-full px-4">
               <div className="pb-4">
-                <p className="font-medium text-lg">Yudha</p>
+                <p className="font-medium text-lg">{data.fullName}</p>
                 <p className="font-thin text-gray-600 text-sm">IT Staff</p>
               </div>
               <div className="flex w-full space-x-6">
@@ -97,9 +106,9 @@ export default function DetailKaryawan() {
                   <p>Alamat</p>
                 </div>
                 <div className="font-light text-gray-500">
-                  <p>ID Karyawan</p>
-                  <p>Jenis Kelamin</p>
-                  <p>Alamat</p>
+                  <p>{data.employeeNumber}</p>
+                  <p>{data.gender}</p>
+                  <p>{data.address}</p>
                 </div>
               </div>
             </div>
@@ -117,11 +126,11 @@ export default function DetailKaryawan() {
               <p>No. Telp</p>
             </div>
             <div className="font-light text-gray-500">
-              <p>Tempat Lahir</p>
-              <p>Tanggal Lahir</p>
-              <p>Agama</p>
-              <p>Email</p>
-              <p>No. Telp</p>
+              <p>{data.birth}</p>
+              <p>{data.birthDate}</p>
+              <p>{data.religion}</p>
+              <p>{data.email}</p>
+              <p>{data.phone}</p>
             </div>
           </div>
         </div>
@@ -138,9 +147,9 @@ export default function DetailKaryawan() {
         <div className="w-full overflow-y-auto flex space-x-3 py-4 px-4">
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
-            <p>SMA</p>
-            <p className="font-light text-gray-500 text-sm">Tanggal Lulus</p>
-            <p className="font-light text-gray-500 text-sm">Jurusan</p>
+            <p>S1 = {data.education}</p>
+            <p className="font-light text-gray-500 text-sm">tanggal lulus = {data.education}</p>
+            <p className="font-light text-gray-500 text-sm">jurusan = {data.school}</p>
           </div>
         </div>
       </div>
@@ -154,9 +163,9 @@ export default function DetailKaryawan() {
         <div className="w-full overflow-y-auto flex space-x-3 py-4 px-4">
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
-            <p>IT Staff</p>
-            <p className="font-light text-gray-500 text-sm">Aktif</p>
-            <p className="font-light text-gray-500 text-sm">2023-sekarang</p>
+            <p>{data.position}</p>
+            <p className="font-light text-gray-500 text-sm">{data.status}</p>
+            <p className="font-light text-gray-500 text-sm">{data.hireDate}</p>
           </div>
         </div>
       </div>

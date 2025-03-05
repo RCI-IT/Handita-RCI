@@ -7,7 +7,8 @@ import { FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock } from "react-icons/fa6";
-import { Employee, karyawanData } from "@/types/daftarKaryawan";
+import { Employee } from "@/types/daftarKaryawan";
+import { useKaryawanData } from "@/data/api";
 import { ColumnDef } from "@tanstack/react-table";
 // import axios from "axios";
 import Table from "@/components/tabel";
@@ -16,6 +17,16 @@ import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
 export default function DaftarKaryawan() {
+  const { data, error, isLoading, isNotFound } = useKaryawanData();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (isNotFound) return <div>No data was found.</div>;
+  if ("message" in data) {
+    // If data has a message, it is an ErrorResponse
+    return <div>Error: {data.message}</div>;
+  }
+
   const columns: ColumnDef<Employee>[] = [
     {
       id: "image",
@@ -30,7 +41,7 @@ export default function DaftarKaryawan() {
     },
     {
       header: "Id Karyawan",
-      accessorKey: "idCardNumber",
+      accessorKey: "employeeNumber",
       cell: (ctx) => ctx.getValue(),
     },
     {
@@ -42,19 +53,20 @@ export default function DaftarKaryawan() {
       id: "Aksi",
       header: "Aksi",
       accessorKey: "id",
-      cell: (ctx) =>{
+      cell: (ctx) => {
         const idKaryawan = ctx.row.original.id; // Mengakses data asli dari baris
         if (!idKaryawan) return null; // Menghindari jika idKaryawan tidak ada
         return (
-        <div className="flex justify-center place-items-center space-x-5">
-          <Link href={`/${idKaryawan}`}>
-            <TbEdit className={`text-2xl text-blue-600`} />
-          </Link>
-          <Link href={`/daftar-karyawan?id=${idKaryawan}`}>
-            <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
-          </Link>
-        </div>
-      )},
+          <div className="flex justify-center place-items-center space-x-5">
+            <Link href={`/${idKaryawan}`}>
+              <TbEdit className={`text-2xl text-blue-600`} />
+            </Link>
+            <Link href={`/daftar-karyawan?id=${idKaryawan}`}>
+              <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
+            </Link>
+          </div>
+        );
+      },
     },
     // {
     //     id: 'email',
@@ -74,6 +86,15 @@ export default function DaftarKaryawan() {
           Manajemen Karyawan
         </p>
         <Breadcrumb />
+        <ul>
+          {data?.map((karyawan) => (
+            <li key={karyawan.id}>
+              <h3>{karyawan.fullName}</h3>
+              <p>{karyawan.position}</p>
+              <p>{karyawan.email}</p>
+            </li>
+          ))}
+        </ul>
       </nav>
 
       <div className="flex items-center justify-between w-full py-5 space-x-6">
@@ -112,7 +133,7 @@ export default function DaftarKaryawan() {
       </div>
 
       <Table
-        objectData={karyawanData}
+        objectData={data ?? []}
         columns={columns}
         judul={`Daftar Karyawan`}
       />
