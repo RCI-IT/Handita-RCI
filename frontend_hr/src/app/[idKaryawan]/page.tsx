@@ -90,7 +90,7 @@ export default function DetailKaryawan() {
                 alt="KTP"
                 layout="fill"
                 objectFit="cover"
-                objectPosition=""
+                objectPosition="center"
                 className="rounded-lg"
               />
             </div>
