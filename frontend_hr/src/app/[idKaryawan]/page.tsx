@@ -2,38 +2,38 @@
 import Breadcrumb from "@/components/breadcrumb";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import { TypeKaryawan } from "@/types/daftarKaryawan";
-import useSWR from "swr";
-import { useKaryawanDataDetail } from "@/data/api";
+import { useKaryawanDataDetail } from "@/api/api2";
+import IsNotFound from "./notFound";
+import LoadingPage from "@/components/loading";
+import DocumentCard from "./documentCard";
+import Link from "next/link";
+import { TbEdit } from "react-icons/tb";
 
-const Fetcher = async (url: string) => {
-  try {
-    const response = await fetch(url);
+// const Fetcher = async (url: string) => {
+//   try {
+//     const response = await fetch(url);
 
-    // Cek status respons, pastikan 200 (OK)
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
+//     // Cek status respons, pastikan 200 (OK)
+//     if (!response.ok) {
+//       throw new Error(`HTTP Error: ${response.status}`);
+//     }
 
-    // Cek apakah respons bisa di-parse sebagai JSON
-    const data = await response.json();
-    return data;
-  } catch (error: unknown) {
-    // Pengecekan tipe error
-    if (error instanceof Error) {
-      // Jika error adalah instance dari Error, kita bisa mengakses properti `message`
-      throw new Error("Error fetching data: " + error.message);
-    } else {
-      // Jika error bukan instance dari Error, kita menangani kasus lainnya
-      throw new Error("An unknown error occurred");
-    }
-  }
-};
+//     // Cek apakah respons bisa di-parse sebagai JSON
+//     const data = await response.json();
+//     return data;
+//   } catch (error: unknown) {
+//     // Pengecekan tipe error
+//     if (error instanceof Error) {
+//       // Jika error adalah instance dari Error, kita bisa mengakses properti `message`
+//       throw new Error("Error fetching data: " + error.message);
+//     } else {
+//       // Jika error bukan instance dari Error, kita menangani kasus lainnya
+//       throw new Error("An unknown error occurred");
+//     }
+//   }
+// };
 
 export default function DetailKaryawan() {
-  // const [loading, setLoading] = useState<boolean>(true); // Menandakan status loading
-
   const params = useParams(); // Retrieve the dynamic parameters
 
   const { idKaryawan } = params; // Access the 'id' parameter from the URL
@@ -47,12 +47,12 @@ export default function DetailKaryawan() {
   }
 
   // Handle loading state
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingPage />;
 
   if (error) return <div>Error: {error.message}</div>;
 
-  // Periksa apakah respons memiliki pesan error
-  if (isNotFound) return <div>No employee found with ID {idKaryawan}</div>;
+  // Periksa apakah id tidak ada
+  if (isNotFound) return <IsNotFound />;
 
   // Conditional check to ensure `data` is available before rendering.
 
@@ -75,9 +75,13 @@ export default function DetailKaryawan() {
       </nav>
 
       <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
-        <h3 className="text-xl font-semibold py-4 px-4 space-y-4">
-          Profil Karyawan
-        </h3>
+        <div className="w-full h-auto flex justify-between items-center py-4 px-4">
+          <h3 className="text-xl font-semibold space-y-4">Profil Karyawan</h3>
+          <Link href={`/edit/${idKaryawan}`} className="flex space-x-2 hover:text-blue-600">
+            <TbEdit className={`text-2xl text-blue-600`} />
+            <p>Edit</p>
+          </Link>
+        </div>
 
         {/* Garis Pembatas */}
         <div className="w-auto border-t-2 border-gray-300"></div>
@@ -86,12 +90,11 @@ export default function DetailKaryawan() {
           <div className="flex-1 flex justify-start">
             <div className="w-40 h-40 relative">
               <Image
-                src="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
+                src={`${process.env.NEXT_PUBLIC_API_BACKEND}/images/${data.image}`}
                 alt="KTP"
-                layout="fill"
-                objectFit="cover"
-                objectPosition="center"
-                className="rounded-lg"
+                width={500}
+                height={500}
+                className="w-full h-full rounded-lg object-cover object-center"
               />
             </div>
             <div className="w-full px-4">
@@ -148,8 +151,12 @@ export default function DetailKaryawan() {
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
             <p>S1 = {data.education}</p>
-            <p className="font-light text-gray-500 text-sm">tanggal lulus = {data.education}</p>
-            <p className="font-light text-gray-500 text-sm">jurusan = {data.school}</p>
+            <p className="font-light text-gray-500 text-sm">
+              tanggal lulus = {data.education}
+            </p>
+            <p className="font-light text-gray-500 text-sm">
+              jurusan = {data.major}
+            </p>
           </div>
         </div>
       </div>
@@ -177,60 +184,42 @@ export default function DetailKaryawan() {
         <div className="w-auto border-t-2 border-gray-300"></div>
 
         <div className="w-full overflow-y-auto flex justify-evenly py-4 px-4">
-          <div>
-            <Image
-              src="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
-              alt="KTP"
-              width={600}
-              height={400}
-              className="w-full h-auto px-4"
-            />
-            <div className="p-4 flex items-center justify-center">
-              <p className="text-center">KTP.pdf</p>
-            </div>
-          </div>
+          {/* KTP */}
+          <DocumentCard
+            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${data.document.idCard}`}
+            altText="KTP"
+            label="KTP"
+          />
+
           {/* Garis Putus-Putus Pembatas */}
           <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
-          <div>
-            <Image
-              src="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
-              alt="KTP"
-              width={600}
-              height={400}
-              className="w-full h-auto px-4"
-            />
-            <div className="p-4 flex items-center justify-center">
-              <p className="text-center">Kartu Keluarga.pdf</p>
-            </div>
-          </div>
 
-          <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
-          <div>
-            <Image
-              src="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
-              alt="KTP"
-              width={600}
-              height={400}
-              className="w-full h-auto px-4"
-            />
-            <div className="p-4 flex items-center justify-center">
-              <p className="text-center">NPWP.pdf</p>
-            </div>
-          </div>
+          {/* Kartu Keluarga */}
+          <DocumentCard
+            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/kartukeluarga/${data.document.familyCard}`}
+            altText="Kartu Keluarga"
+            label="Kartu Keluarga"
+          />
 
+          {/* Garis Putus-Putus Pembatas */}
           <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
-          <div>
-            <Image
-              src="https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
-              alt="KTP"
-              width={600}
-              height={400}
-              className="w-full h-auto px-4"
-            />
-            <div className="p-4 flex items-center justify-center">
-              <p className="text-center">Ijazah Terakhir.pdf</p>
-            </div>
-          </div>
+
+          {/* NPWP */}
+          <DocumentCard
+            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${data.document.taxCard}`}
+            altText="NPWP"
+            label="NPWP"
+          />
+
+          {/* Garis Putus-Putus Pembatas */}
+          <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
+
+          {/* Ijazah Terakhir */}
+          <DocumentCard
+            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/ijazah/${data.document.diploma}`}
+            altText="Ijazah Terakhir"
+            label="Ijazah Terakhir"
+          />
         </div>
       </div>
     </div>

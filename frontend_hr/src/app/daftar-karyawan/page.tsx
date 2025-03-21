@@ -2,37 +2,83 @@
 
 import Breadcrumb from "@/components/breadcrumb";
 import CardHead from "@/components/card-head";
-// import Image from "next/image";
+import Image from "next/image";
 import { FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock } from "react-icons/fa6";
 import { Employee } from "@/types/daftarKaryawan";
-import { useKaryawanData } from "@/data/api";
+import { deleteData, useKaryawanData } from "@/api/api2";
 import { ColumnDef } from "@tanstack/react-table";
 // import axios from "axios";
 import Table from "@/components/tabel";
 import Link from "next/link";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
+import LoadingPage from "@/components/loading";
 
 export default function DaftarKaryawan() {
   const { data, error, isLoading, isNotFound } = useKaryawanData();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <LoadingPage />;
+  if (error) return <div>Error when Load Data: {error.message}</div>;
   if (isNotFound) return <div>No data was found.</div>;
   if ("message" in data) {
     // If data has a message, it is an ErrorResponse
     return <div>Error: {data.message}</div>;
   }
 
+  const handleDeleteClick = async (
+    idKaryawan: string,
+    e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>
+  ) => {
+    e.preventDefault(); // Mencegah navigasi otomatis jika ini dipanggil dalam <Link> atau elemen lainnya
+
+    // Menampilkan konfirmasi penghapusan
+    const confirmed = window.confirm(
+      "Apakah Anda yakin ingin menghapus karyawan ini?"
+    );
+    if (confirmed) {
+      try {
+        // Menghapus data karyawan
+        await deleteData(idKaryawan);
+
+        // Setelah penghapusan, arahkan pengguna ke halaman daftar karyawan atau tempat lainnya
+        alert("Karyawan berhasil dihapus");
+        window.location.href = "/daftar-karyawan"; // Mengarahkan kembali ke daftar karyawan
+      } catch (error) {
+        // Menangani error jika penghapusan gagal
+        alert("Terjadi kesalahan saat menghapus karyawan");
+        console.error(error);
+      }
+    }
+  };
   const columns: ColumnDef<Employee>[] = [
     {
       id: "image",
       header: "Foto",
       accessorKey: "image",
-      cell: (ctx) => ctx.getValue(),
+      cell: (ctx) => {
+        return (
+          <div className="w-32 h-32 relative overflow-hidden mx-auto">
+
+            {/* Only render the Image component if ctx.getValue() is a valid string */}
+            {typeof ctx.getValue() === "string" && ctx.getValue() !== "" ? (
+              <Image
+                src={`${
+                  process.env.NEXT_PUBLIC_API_BACKEND
+                }/images/${ctx.getValue()}`}
+                alt={typeof ctx.row.original.image === 'string' ? ctx.row.original.image : 'Profile Image'}
+                width={500}
+                height={500}
+                className="w-full h-full rounded-lg object-cover object-center"
+              />
+            ) : (
+              <p>No valid image available</p> // Fallback text in case there's no valid image
+            )}
+          </div>
+        );
+      },
     },
     {
       header: "fullName",
@@ -61,9 +107,9 @@ export default function DaftarKaryawan() {
             <Link href={`/${idKaryawan}`}>
               <TbEdit className={`text-2xl text-blue-600`} />
             </Link>
-            <Link href={`/daftar-karyawan?id=${idKaryawan}`}>
+            <button onClick={(e) => handleDeleteClick(idKaryawan, e)}>
               <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
-            </Link>
+            </button>
           </div>
         );
       },

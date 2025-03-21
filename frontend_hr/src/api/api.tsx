@@ -7,14 +7,14 @@ import { mutate } from "swr";
 
 const api = "http://192.168.110.253:4000/v1/";
 
-const Fetcher = async (url: string) => {
-  try {
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error) {
-    throw new Error("Error fetching data");
-  }
-};
+// const Fetcher = async (url: string) => {
+//   try {
+//     const response = await axios.get(url);
+//     return response.data;
+//   } catch (error) {
+//     throw new Error("Error fetching data");
+//   }
+// };
 
 const handleDelete = async (id: string, url: string, linked: string) => {
   try {

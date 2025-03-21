@@ -25,6 +25,7 @@ model Employees {
   major          String
   position       String
   status         String
+  salary         Int                    @default(0)
   hireDate       DateTime?              @db.Date
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
@@ -52,3 +53,11 @@ model EmployeeSertification {
   updatedAt  DateTime  @updatedAt
   employee   Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 }
+
+// model Department {
+//   id          String                 @id @default(uuid())
+//   departmentName String                 @unique
+//   createdAt      DateTime               @default(now())
+//   updatedAt      DateTime               @updatedAt
+//   employees     Employees[]
+// }

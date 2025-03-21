@@ -62,11 +62,15 @@ export default function Sidebar() {
   const handleSide = () => {
     changeNavSize(!navSize);
   };
-
   const pathname = usePathname();
 
   // Sembunyikan sidebar di halaman login
-  if (pathname === "/login" || pathname === "/signin") return null;
+  if (
+    pathname === "/login" ||
+    pathname === "/signin" ||
+    pathname === "/notFound"
+  )
+    return null;
 
   return (
     <div className="relative flex">
@@ -99,11 +103,11 @@ export default function Sidebar() {
               <Image
                 src={navSize ? logo1 : logo2}
                 alt="Logo"
-                layout="fill"
-                objectFit="contain"
-                objectPosition="center"
                 loading="lazy"
                 decoding="async"
+                width={500}
+                height={500}
+                className="w-full h-full object-contain object-center"
               />
             </div>
           </div>

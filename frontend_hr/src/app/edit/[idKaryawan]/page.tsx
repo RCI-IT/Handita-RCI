@@ -1,5 +1,4 @@
 "use client";
-
 import Breadcrumb from "@/components/breadcrumb";
 import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -9,18 +8,38 @@ import Image from "next/image";
 import { postKaryawanWithFile, useKaryawanData } from "@/api/api2";
 import { checkDuplicate } from "@/function/check-unique";
 
-export default function TambahKaryawan() {
+export default function Edit() {
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
   const [step, setStep] = useState(0);
 
   const {
     control,
     handleSubmit,
+    // setValue,
+    // watch,
     setError,
     trigger,
     formState: { errors },
   } = useForm<Employee>({
     mode: "onSubmit",
+    // defaultValues: {
+    //   employeeNumber: "",
+    //   idCardNumber: "",
+    //   fullName: "",
+    //   birth: "",
+    //   birthDate: "",
+    //   gender: "",
+    //   religion: "",
+    //   address: "",
+    //   email: "",
+    //   phone: "",
+    //   education: "",
+    //   major: "",
+    //   position: "",
+    //   status: "",
+    //   salary: "",
+    //   hireDate: "",
+    // },
   });
 
   const handlePrevious = () => {
@@ -49,12 +68,6 @@ export default function TambahKaryawan() {
   const onSubmit = async (data: Employee) => {
     try {
       setLoadSubmit(true);
-      // const simpan = await axios.post(url, formData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // });
-      //   const simpan = await postFormData(url, data);
       // Handle the response, e.g., show a success message or navigate to a different page
       // toast.success("Successfully created!");
 

@@ -16,6 +16,7 @@ const EmployeeValidation = Joi.object({
     school: Joi.string().required(),
     major: Joi.string(),
     position: Joi.string().required(),
+    salary: Joi.number().required(),
     status: Joi.string(),
     hireDate: Joi.date().iso(),
     document: {

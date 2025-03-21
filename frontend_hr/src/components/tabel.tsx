@@ -207,7 +207,7 @@ ReactTableProps<T>) {
                                   (header.column.getCanSort() &&
                                     header.id !== "Aksi") ||
                                   "Foto"
-                                    ? "cursor-pointer select-none flex justify-center place-items-center"
+                                    ? "cursor-pointer select-none flex justify-center items-center"
                                     : "",
                                 onClick:
                                   header.id === "Aksi" || header.id === "Foto"
@@ -259,11 +259,11 @@ ReactTableProps<T>) {
                   {table.getRowModel().rows.map((row, index) => (
                     <Fragment key={row.id}>
                       <tr
-                        className={`'bg-gray-50 transition-colors dark:bg-black-300 text-center'
+                        className={`'bg-gray-50 transition-colors dark:bg-black-300 text-center
                                                 ${row.getIsExpanded()}`}
                       >
                         <td
-                          className={`p-3 text-sm text-gray-700 border-white border-[1px] text-center mx-auto ${
+                          className={`w-fit text-sm text-gray-700 border-white border-[1px] text-center ${
                             Number(index) % 2 === 0
                               ? "bg-white "
                               : "bg-[#F8F8F8] "
@@ -273,7 +273,7 @@ ReactTableProps<T>) {
                         </td>
                         {row.getVisibleCells().map((cell) => (
                           <td
-                            className={`p-3 text-sm text-gray-700 border-white border-[1px] text-center mx-auto ${
+                            className={`py-2 text-sm text-gray-700 border-white border-[1px] text-center  ${
                               Number(index) % 2 === 0
                                 ? "bg-white "
                                 : "bg-[#F8F8F8] "

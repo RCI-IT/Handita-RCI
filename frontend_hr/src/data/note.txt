@@ -148,3 +148,99 @@ Dengan cara ini, kamu telah berhasil memisahkan logika pengambilan data dari kom
     KaryawanPage.tsx: Menggunakan hook useKaryawanData untuk menampilkan data, menangani error dan loading state, serta melakukan CRUD.
 
 Dengan pendekatan ini, kode menjadi lebih modular dan lebih mudah untuk mengelola pengambilan data di berbagai tempat dalam aplikasi Next.js kamu.
+
+
+
+
+
+
+
+
+
+
+1. Creating an Error Handling Function:
+
+
+// Helper function to validate that all required fields are present
+const validateFormData = (formData: FormData) => {
+  // Define the required form fields
+  const requiredFields = [
+    'image', // assuming image field is required
+    'employeeNumber',
+    'fullName',
+    'idCardNumber',
+    'address',
+    'birth',
+    'birthDate',
+    'gender',
+    'religion',
+    'email',
+    'phone',
+    'education',
+    'school',
+    'major',
+    'position',
+    'status',
+    'hireDate',
+  ];
+
+  // Loop through the required fields to check if they are present in formData
+  for (const field of requiredFields) {
+    // Check if the field exists in the FormData
+    if (!formData.has(field)) {
+      console.error(`Missing field: ${field}`);
+      throw new Error(`The form field "${field}" is required.`);
+    }
+  }
+
+  console.log("All required fields are present.");
+};
+
+export const postKaryawanWithFile = async (data: Employee) => {
+  // Check if 'data' is already a FormData object
+  const formData = data instanceof FormData ? data : new FormData();
+
+  // Iterate over properties of data object and append to FormData
+  for (const [key, value] of Object.entries(data)) {
+    // Skip 'document' field to avoid sending it
+    if (key === 'document') {
+      continue;
+    }
+
+    // Skip undefined or null values
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    // Handle File fields (for example 'image')
+    else if (value instanceof File) {
+      const uniqueFileName = `${key}_${value.name}`;
+      formData.append(key, value, uniqueFileName);
+    } 
+    // Handle nested objects (if any, except 'document')
+    else if (value && typeof value === "object" && value.constructor === Object) {
+      for (const [nestedKey, nestedValue] of Object.entries(value)) {
+        if (nestedValue instanceof File) {
+          formData.append(`${key}.${nestedKey}`, nestedValue, nestedValue.name);
+        } else {
+          formData.append(`${key}.${nestedKey}`, String(nestedValue));
+        }
+      }
+    } else {
+      formData.append(key, String(value));
+    }
+  }
+
+  // Validate the form data to ensure all required fields are included
+  try {
+    validateFormData(formData); // This will throw an error if any required field is missing
+    console.log("Form data is valid, sending request...");
+    // You can now send `formData` to the backend here using fetch, axios, etc.
+  } catch (error) {
+    console.error("Error in form validation:", error.message);
+  }
+
+  // For debugging, log FormData if everything is okay
+  console.log(formData);
+  return formData;
+};

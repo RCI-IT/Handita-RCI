@@ -21,11 +21,11 @@ export default function Header() {
             <Image
               src={logo1}
               alt="Logo"
-              layout="fill"
-              objectFit="contain"
-              objectPosition="center"
               loading="lazy"
               decoding="async"
+              width={500}
+              height={500}
+              className="w-full h-full object-contain object-center"
             />
           </div>
           <p className="text-sm">Nama Pengguna</p>

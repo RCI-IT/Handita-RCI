@@ -74,6 +74,7 @@ const EmployeeController = {
       // Simpan daftar file yang berhasil diupload
       const uploadedFiles = getUploadedFilePaths(req);
 
+      const { error, value } = EmployeeValidation.validate(req.body);
       const getFilenameOrDefault = (
         file?: Express.Multer.File
       ): string | null => {
@@ -84,7 +85,6 @@ const EmployeeController = {
         [fieldname: string]: Express.Multer.File[];
       };
 
-      const { error, value } = EmployeeValidation.validate(req.body);
       if (error) {
         cleanupUploadedFiles(uploadedFiles);
         return handleUnprocessableEntityResponse(res, error.details[0].message);

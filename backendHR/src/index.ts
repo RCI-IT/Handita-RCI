@@ -1,9 +1,10 @@
 import express, { Application, Request, Response } from "express";
-import multer from "multer";
+// import multer from "multer";
 import dotenv from "dotenv"; // untuk membaca environment
 import { StatusCodes } from "http-status-codes"; // Untuk error handling
 // import userRoutes from "./routes/UserRoutes"
 import { Employee } from "./routes/EmployeeRoutes";
+import path from "path";
 const cors = require('cors');
 
 // import {Employee} from "./routes/EmployeeRoutes";
@@ -30,22 +31,27 @@ app.use('/api/employees', Employee);
 
 
 
-const upload = multer({ storage: multer.memoryStorage() }); // Middleware untuk menangani multipart/form-data
+// const upload = multer({ storage: multer.memoryStorage() }); // Middleware untuk menangani multipart/form-data
 
-app.post('/upload',upload.any(), (req, res) => {
-    console.log('Body:', req.body); // Untuk melihat data teks
-    console.log('Files:', req.files); // Untuk melihat data file (jika ada)
+// app.post('/upload',upload.any(), (req, res) => {
+//     console.log('Body:', req.body); // Untuk melihat data teks
+//     console.log('Files:', req.files); // Untuk melihat data file (jika ada)
 
-    res.json({ message: 'Data diterima', data: req.body, files: req.files });
-});
-
-
-
+//     res.json({ message: 'Data diterima', data: req.body, files: req.files });
+// });
 
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Prisma with PostgreSQL!");
 });
+
+// Middleware untuk melayani file statis (termasuk gambar)
+app.use('/images', express.static(path.join(__dirname, 'public/uploads/images')));
+app.use('/ijazah', express.static(path.join(__dirname, 'public/uploads/diplomas')));
+app.use('/kartukeluarga', express.static(path.join(__dirname, 'public/uploads/familyCards')));
+app.use('/ktp', express.static(path.join(__dirname, 'public/uploads/idCards')));
+app.use('/npwp', express.static(path.join(__dirname, 'public/uploads/taxCards')));
+
 
 // Error Handling
 app.use((_req: Request, res: Response) => {
