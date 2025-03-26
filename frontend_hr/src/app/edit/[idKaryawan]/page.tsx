@@ -5,42 +5,23 @@ import { useForm } from "react-hook-form";
 import { Employee } from "@/types/daftarKaryawan";
 import { Controller } from "react-hook-form";
 import Image from "next/image";
-import { postKaryawanWithFile, useKaryawanData } from "@/api/api2";
+import {
+  editDataWithFile,
+  useKaryawanData,
+  useKaryawanDataDetail,
+} from "@/api/api2";
 import { checkDuplicate } from "@/function/check-unique";
+import { useParams } from "next/navigation";
+import LoadingPage from "@/components/loading";
+import IsNotFound from "@/app/[idKaryawan]/notFound";
+import { validateFile, validations } from "@/function/fileValidation";
 
 export default function Edit() {
+  const params = useParams<{ idKaryawan: string }>();
+  const { idKaryawan } = params;
+
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
   const [step, setStep] = useState(0);
-
-  const {
-    control,
-    handleSubmit,
-    // setValue,
-    // watch,
-    setError,
-    trigger,
-    formState: { errors },
-  } = useForm<Employee>({
-    mode: "onSubmit",
-    // defaultValues: {
-    //   employeeNumber: "",
-    //   idCardNumber: "",
-    //   fullName: "",
-    //   birth: "",
-    //   birthDate: "",
-    //   gender: "",
-    //   religion: "",
-    //   address: "",
-    //   email: "",
-    //   phone: "",
-    //   education: "",
-    //   major: "",
-    //   position: "",
-    //   status: "",
-    //   salary: "",
-    //   hireDate: "",
-    // },
-  });
 
   const handlePrevious = () => {
     setStep((prevStep) => prevStep - 1);
@@ -65,6 +46,40 @@ export default function Edit() {
 
   const [loadSubmit, setLoadSubmit] = useState(false);
 
+  const { data, error, isLoading, isNotFound } =
+    useKaryawanDataDetail(idKaryawan);
+
+  const employeeData = data as Employee;
+
+  const {
+    control,
+    handleSubmit,
+    // setValue,
+    // watch,
+    setError,
+    trigger,
+    formState: { errors },
+  } = useForm<Employee>({
+    mode: "onSubmit",
+    // defaultValues: {
+    //   employeeNumber: employeeData?.employeeNumber,
+    //   idCardNumber: "",
+    //   fullName: "",
+    //   birth: "",
+    //   birthDate: "",
+    //   gender: "",
+    //   religion: "",
+    //   address: "",
+    //   email: "",
+    //   phone: "",
+    //   education: "",
+    //   major: "",
+    //   position: "",
+    //   status: "",
+    //   salary: "",
+    //   hireDate: "",
+    // },
+  });
   const onSubmit = async (data: Employee) => {
     try {
       setLoadSubmit(true);
@@ -75,7 +90,7 @@ export default function Edit() {
       console.log("Data yang disubmit: ", data);
 
       setLoadSubmit(false);
-      await postKaryawanWithFile(data);
+      await editDataWithFile(data, idKaryawan);
 
       // setTimeout(() => {
       //   window.location.href = "/personalia/karyawan/";
@@ -86,29 +101,53 @@ export default function Edit() {
     }
   };
 
+  
+  // Handle file change and validation in one go
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldOnChange: (file: File) => void,
+    name: keyof Employee
+  ) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      const validationError = validateFile(file, validations);
+      if (validationError) {
+        setError(name, {
+          type: "manual",
+          message: validationError,
+        });
+      } else {
+        fieldOnChange(file);  // Only call field.onChange if validation passes
+      }
+    }
+  };
+
   // Call the hook to fetch employee data
-  const { data, error, isLoading, isNotFound } = useKaryawanData();
-  if (isLoading) {
-    return "Loading...";
-  }
-  if (error) {
-    return "Error fetching employee data";
-  }
-  if (isNotFound) {
-    return "No employee data available";
-  }
-  const existingEmployeeNumbers = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.employeeNumber)
+  const {
+    data: duplicateData,
+    error: duplicateError,
+    isLoading: loading,
+    isNotFound: notFound,
+  } = useKaryawanData();
+  const existingEmployeeNumbers = Array.isArray(duplicateData)
+    ? duplicateData.map((karyawan) => karyawan.employeeNumber)
     : [];
-  const existingIdCardNumber = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.idCardNumber)
+  const existingIdCardNumber = Array.isArray(duplicateData)
+    ? duplicateData.map((karyawan) => karyawan.idCardNumber)
     : [];
-  const existingEmail = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.email)
+  const existingEmail = Array.isArray(duplicateData)
+    ? duplicateData.map((karyawan) => karyawan.email)
     : [];
-  const existingPhone = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.phone)
+  const existingPhone = Array.isArray(duplicateData)
+    ? duplicateData.map((karyawan) => karyawan.phone)
     : [];
+
+  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <LoadingPage />;
+  if (isNotFound) return <IsNotFound />;
+  if (duplicateError) return <div>Error: {error.message}</div>;
+  if (loading) return <LoadingPage />;
+  if (notFound) return <IsNotFound />;
 
   return (
     <div className="w-full pt-8 pr-6">
@@ -121,7 +160,7 @@ export default function Edit() {
 
       <div className="pt-5 space-y-5 relative">
         {/* ---------------- Form Tambah Karyawan ---------------- */}
-        From Tambah Karyawan
+        From Tambah Karyawan {employeeData?.birthDate}
         {/* Island Pembagian 4 Steps */}
         <div className="min-w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between">
           {steps.map((label, index) => (
@@ -164,7 +203,7 @@ export default function Edit() {
                   <Controller
                     name="image"
                     control={control}
-                    rules={{ required: "Photo Profil harus ada." }}
+                    defaultValue={null}
                     render={({ field }) => (
                       <div className="">
                         {field.value && field.value instanceof File ? (
@@ -192,27 +231,13 @@ export default function Edit() {
                             />
                           </>
                         ) : (
-                          // {/* Hover effect */}
-                          // <img
-                          //   src="https://i.pravatar.cc/300"
-                          //   alt="Profile Picture"
-                          //   className="rounded-full w-32 h-32 mx-auto border-4 border-indigo-800 mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
-                          // />
-
-                          <div className="relative w-28 h-28 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
-                            <svg
-                              className="absolute w-32 h-32 text-gray-400 -left-2"
-                              fill="currentColor"
-                              viewBox="0 0 32 32"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16 14a5 5 0 100-10 5 5 0 000 10zm-12 14a12 12 0 1124 0H4z"
-                                clipRule="evenodd"
-                              ></path>
-                            </svg>
-                          </div>
+                          <Image
+                            src={`${process.env.NEXT_PUBLIC_API_BACKEND}/images/${employeeData.image}`}
+                            alt="Profile Picture"
+                            width={400}
+                            height={400}
+                            className="rounded-full w-32 h-32 mx-auto border-4 border-blueBase mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
+                          />
                         )}
 
                         <label className="flex justify-center items-center cursor-pointer">
@@ -301,7 +326,10 @@ export default function Edit() {
                               cleanedValue,
                               existingEmployeeNumbers
                             );
-                            if (isDuplicate) {
+                            if (
+                              isDuplicate &&
+                              cleanedValue !== employeeData.employeeNumber
+                            ) {
                               return "Nomor pegawai sudah terdaftar";
                             }
 
@@ -312,7 +340,7 @@ export default function Edit() {
                             message: "Only valid numeric values are allowed",
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.employeeNumber}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -345,7 +373,7 @@ export default function Edit() {
                             message: "Nama harus lebih dari 3 karakter",
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.fullName}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -383,7 +411,10 @@ export default function Edit() {
                               cleanedValue,
                               existingIdCardNumber
                             );
-                            if (isDuplicate) {
+                            if (
+                              isDuplicate &&
+                              cleanedValue !== employeeData.idCardNumber
+                            ) {
                               return "Nomor pegawai sudah terdaftar";
                             }
 
@@ -399,7 +430,7 @@ export default function Edit() {
                           //   return isUnique;
                           // },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.idCardNumber}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -428,7 +459,7 @@ export default function Edit() {
                             message: "Alamat harus lebih dari 3 karakter",
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.address}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -455,7 +486,7 @@ export default function Edit() {
                             message: "Tempat lahir harus lebih dari 3 karakter",
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.birth}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -478,7 +509,7 @@ export default function Edit() {
                         rules={{
                           required: "Tanggal lahir harus diisi",
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.birthDate.slice(0, 10)}
                         render={({ field }) => (
                           <div className="relative max-w-sm">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -517,7 +548,7 @@ export default function Edit() {
                       <Controller
                         name="gender"
                         control={control}
-                        defaultValue=""
+                        defaultValue={employeeData.gender}
                         rules={{
                           required: "Jenis kelamin harus diisi",
                         }}
@@ -555,7 +586,7 @@ export default function Edit() {
                         rules={{
                           required: "Agama harus diisi",
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.religion}
                         render={({ field }) => (
                           <select
                             {...field}
@@ -593,14 +624,14 @@ export default function Edit() {
                               existingEmail
                             );
 
-                            if (uniqueEmail) {
+                            if (uniqueEmail && value !== employeeData.email) {
                               return "Email sudah terdaftar";
                             }
 
                             return true;
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.email}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -634,13 +665,13 @@ export default function Edit() {
                               value,
                               existingPhone
                             );
-                            if (uniquePhone) {
+                            if (uniquePhone && value !== employeeData.phone) {
                               return "Nomor kontak sudah terdaftar";
                             }
                             return true;
                           },
                         }}
-                        defaultValue=""
+                        defaultValue={employeeData.phone}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -669,7 +700,7 @@ export default function Edit() {
                       rules={{
                         required: "Pendidikan terakhir harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.education}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -692,7 +723,7 @@ export default function Edit() {
                       rules={{
                         required: "Pendidikan harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.school}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -715,7 +746,7 @@ export default function Edit() {
                       rules={{
                         required: "Jurusan harus diisi harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.major}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -743,7 +774,7 @@ export default function Edit() {
                       rules={{
                         required: "Posisi harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.position}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -766,7 +797,7 @@ export default function Edit() {
                       rules={{
                         required: "Status harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.status}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -789,7 +820,7 @@ export default function Edit() {
                       rules={{
                         required: "Tanggal mulai bekerja harus diisi",
                       }}
-                      defaultValue=""
+                      defaultValue={employeeData.hireDate.slice(0, 10)}
                       render={({ field }) => (
                         <div className="relative max-w-sm">
                           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -832,7 +863,7 @@ export default function Edit() {
                       rules={{
                         required: "Nilai gaji harus diisi",
                       }}
-                      defaultValue={0}
+                      defaultValue={employeeData.salary}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -845,7 +876,7 @@ export default function Edit() {
                     <span className="text-errorFormColor text-xs">
                       {errors.salary && <p>{errors.salary.message}</p>}
                     </span>
-                  </div> 
+                  </div>
                 </div>
               </div>
             ) : null}
@@ -855,94 +886,82 @@ export default function Edit() {
                 <div className="space-y-2 w-auto">
                   <p>KTP</p>
                   <div className="w-fit">
-                    <label>
-                      <Controller
-                        name="document.idCard"
-                        control={control}
-                        rules={{ required: "*Kolom ini wajib diisi" }}
-                        render={({ field }) => (
-                          <div className="flex items-center space-x-2">
-                            {field.value && field.value instanceof File ? (
-                              <>
-                                <a
-                                  href={URL.createObjectURL(field.value)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                                >
-                                  <p>
-                                    {field.value
-                                      ? field.value.name.length <= 20
-                                        ? field.value.name
-                                        : field.value.name.slice(0, 20) + "..."
-                                      : ""}
-                                  </p>
-                                </a>
-                                <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
-                                  onClick={() => {
-                                    field.onChange(null); // Clears the file field
-                                  }}
-                                >
-                                  Ganti
+                    <Controller
+                      name="document.idCard"
+                      control={control}
+                      rules={{ required: "*Kolom ini wajib diisi" }}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          {field.value && field.value instanceof File ? (
+                            <>
+                              <a
+                                href={URL.createObjectURL(field.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                <p>
+                                  {field.value
+                                    ? field.value.name.length <= 20
+                                      ? field.value.name
+                                      : field.value.name.slice(0, 20) + "..."
+                                    : ""}
                                 </p>
-                              </>
-                            ) : (
-                              <>
+                              </a>
+                              <p
+                                className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                onClick={() => {
+                                  field.onChange(null); // Clears the file field
+                                }}
+                              >
+                                Ganti
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <a
+                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${employeeData.document.idCard}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                {employeeData?.document.idCard &&
+                                typeof employeeData.document.idCard === "string"
+                                  ? employeeData.document.idCard.length <= 20
+                                    ? employeeData.document.idCard
+                                    : employeeData.document.idCard.slice(
+                                        0,
+                                        20
+                                      ) + "..."
+                                  : null}
+                              </a>
+                              <label>
                                 <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Click to Upload File
                                 </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Image
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  {"<"} 2 MB
-                                </span>
-                              </>
-                            )}
-                            <input
-                              {...field}
-                              type="file"
-                              value={undefined}
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files
-                                  ? e.target.files[0]
-                                  : null;
-                                if (file) {
-                                  // Check if file size exceeds 2MB
-                                  if (file.size > 2 * 1024 * 1024) {
-                                    setError("document.idCard", {
-                                      type: "manual",
-                                      message:
-                                        "File size should be less than 2MB",
-                                    });
-                                  } else {
-                                    field.onChange(file);
-                                  }
-                                }
-                              }}
-                            />
-                          </div>
-                        )}
-                      />
-                      {/* {watch("document.idCard") !== null ||
-                watch("document.idCard") !== undefined ? (
-                  <p
-                    onClick={() => {
-                      // Using the field's onChange to clear the file when "Hapus" is clicked
-                      setValue("document.idCard", null); // Clears the file from the form control
-                    }}
-                    className="text-red-500 cursor-pointer"
-                  >
-                    Hapus
-                  </p>
-                ) : (
-                  ""
-                )} */}
-                    </label>
-                    {/* Error handling */}
+                                <input
+                                  {...field}
+                                  type="file"
+                                  value={undefined}
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    handleFileChange(e, field.onChange, field.name as keyof Employee);
+                                  }}
+                                />
+                              </label>
+
+                              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                Image
+                              </span>
+                              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                {"<"} 2 MB
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    />
                     {errors.document?.idCard && (
                       <p className="text-red-500 text-sm">
                         {errors.document?.idCard.message}

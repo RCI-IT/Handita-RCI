@@ -131,6 +131,61 @@ export const postKaryawanWithFile = async (data: Employee) => {
   }
 };
 
+export const editDataWithFile = async(data:Employee, id: string) => {
+  const formData = data instanceof FormData ? data : new FormData();
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    else if (key === "price" && typeof value === "string") {
+      const harga = parseFloat(value.replace(/[^0-9]/g, ""));
+      formData.append(key, String(harga));
+    }
+    else if (value instanceof File) {
+      const uniqueFileName = `${key}_${value.name}`;
+      formData.append(key, value, uniqueFileName);
+    } else if (
+      value &&
+      typeof value === "object" &&
+      value.constructor === Object
+    ) {
+      for (const [nestedKey, nestedValue] of Object.entries(value)) {
+        if (nestedValue instanceof File) {
+          formData.append(
+            `${nestedKey}`,
+            nestedValue,
+            nestedValue.name
+          );
+        } else {
+          formData.append(`${nestedKey}`, String(nestedValue));
+        }
+      }
+    } else {
+      formData.append(key, String(value));
+    }
+  }
+
+  console.log(formData);
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
+      {
+        method: "PUT",
+        // headers: {
+        //   "Content-Type": "multipart/form-data",
+        //   // Add any additional headers if needed
+        // },
+        body: formData,
+      }
+    );
+    return response;
+  }catch (error) {
+    console.error("Error posting data:", error); // Log the error for debugging
+    throw new Error("Error posting data");
+  }
+}
 
 export const deleteData = async(id: string) => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`, {
@@ -145,3 +200,4 @@ export const deleteData = async(id: string) => {
   }
   return response.json();
 }
+

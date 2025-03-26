@@ -8,10 +8,10 @@ export type TypeKaryawan = {
 export type Document = {
   id: string;
   employeeId: string;
-  idCard: File | null;
-  taxCard: File | null;
-  familyCard: File | null;
-  diploma: File | null;
+  idCard: File | null | string;
+  taxCard: File | null | string;
+  familyCard: File | null | string;
+  diploma: File | null | string;
   createdAt: string;
   updatedAt: string;
 };

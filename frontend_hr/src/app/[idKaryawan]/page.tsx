@@ -9,30 +9,6 @@ import DocumentCard from "./documentCard";
 import Link from "next/link";
 import { TbEdit } from "react-icons/tb";
 
-// const Fetcher = async (url: string) => {
-//   try {
-//     const response = await fetch(url);
-
-//     // Cek status respons, pastikan 200 (OK)
-//     if (!response.ok) {
-//       throw new Error(`HTTP Error: ${response.status}`);
-//     }
-
-//     // Cek apakah respons bisa di-parse sebagai JSON
-//     const data = await response.json();
-//     return data;
-//   } catch (error: unknown) {
-//     // Pengecekan tipe error
-//     if (error instanceof Error) {
-//       // Jika error adalah instance dari Error, kita bisa mengakses properti `message`
-//       throw new Error("Error fetching data: " + error.message);
-//     } else {
-//       // Jika error bukan instance dari Error, kita menangani kasus lainnya
-//       throw new Error("An unknown error occurred");
-//     }
-//   }
-// };
-
 export default function DetailKaryawan() {
   const params = useParams(); // Retrieve the dynamic parameters
 
@@ -91,7 +67,7 @@ export default function DetailKaryawan() {
             <div className="w-40 h-40 relative">
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_BACKEND}/images/${data.image}`}
-                alt="KTP"
+                alt="Photo Profile"
                 width={500}
                 height={500}
                 className="w-full h-full rounded-lg object-cover object-center"
