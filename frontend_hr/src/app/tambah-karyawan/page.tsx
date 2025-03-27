@@ -8,6 +8,7 @@ import { Controller } from "react-hook-form";
 import Image from "next/image";
 import { postKaryawanWithFile, useKaryawanData } from "@/api/api2";
 import { checkDuplicate } from "@/function/check-unique";
+import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
 
 export default function TambahKaryawan() {
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
@@ -824,7 +825,9 @@ export default function TambahKaryawan() {
                         <input
                           {...field}
                           id="salary"
-                          type="number"
+                          type="text"
+                          value={FormatCurrency(field.value)}
+                          onChange={(e) => HandleCurrencyChange(e, field)}
                           className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                         />
                       )}

@@ -15,6 +15,7 @@ import { useParams } from "next/navigation";
 import LoadingPage from "@/components/loading";
 import IsNotFound from "@/app/[idKaryawan]/notFound";
 import { validateFile, validations } from "@/function/fileValidation";
+import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
 
 export default function Edit() {
   const params = useParams<{ idKaryawan: string }>();
@@ -101,7 +102,6 @@ export default function Edit() {
     }
   };
 
-  
   // Handle file change and validation in one go
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -117,7 +117,7 @@ export default function Edit() {
           message: validationError,
         });
       } else {
-        fieldOnChange(file);  // Only call field.onChange if validation passes
+        fieldOnChange(file); // Only call field.onChange if validation passes
       }
     }
   };
@@ -208,20 +208,6 @@ export default function Edit() {
                       <div className="">
                         {field.value && field.value instanceof File ? (
                           <>
-                            {/* <a
-                              href={URL.createObjectURL(field.value)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                            >
-                              <p>
-                                {field.value
-                                  ? field.value.name.length <= 20
-                                    ? field.value.name
-                                    : field.value.name.slice(0, 20) + "..."
-                                  : ""}
-                              </p>
-                            </a> */}
                             <Image
                               src={URL.createObjectURL(field.value)}
                               alt="Profile Picture"
@@ -274,21 +260,11 @@ export default function Edit() {
                             accept="image/*"
                             className="hidden"
                             onChange={(e) => {
-                              const file = e.target.files
-                                ? e.target.files[0]
-                                : null;
-                              if (file) {
-                                // Check if file size exceeds 2MB
-                                if (file.size > 2 * 1024 * 1024) {
-                                  setError("image", {
-                                    type: "manual",
-                                    message:
-                                      "File size should be less than 2MB",
-                                  });
-                                } else {
-                                  field.onChange(file);
-                                }
-                              }
+                              handleFileChange(
+                                e,
+                                field.onChange,
+                                field.name as keyof Employee
+                              );
                             }}
                           />
                         </label>
@@ -400,13 +376,9 @@ export default function Edit() {
 
                             if (cleanedValue.length !== 16)
                               return "NIK harus 16 digit";
-
-                            // Validasi hanya angka yang diperbolehkan
                             if (!/^[0-9]+$/.test(cleanedValue)) {
                               return "Hanya angka yang valid";
                             }
-
-                            // Validasi perulangan untuk cek duplikasi
                             const isDuplicate = checkDuplicate(
                               cleanedValue,
                               existingIdCardNumber
@@ -559,6 +531,7 @@ export default function Edit() {
                                 {...field}
                                 type="radio"
                                 value="pria"
+                                checked={field.value === "pria"}
                                 id="pria"
                                 className="mr-2"
                               />
@@ -568,6 +541,7 @@ export default function Edit() {
                               {...field}
                               type="radio"
                               value="wanita"
+                              checked={field.value === "wanita"}
                               id="wanita"
                               className="mr-2"
                             />
@@ -868,8 +842,10 @@ export default function Edit() {
                         <input
                           {...field}
                           id="salary"
-                          type="number"
+                          type="text"
                           className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
+                          value={FormatCurrency(field.value)}
+                          onChange={(e) => HandleCurrencyChange(e, field)}
                         />
                       )}
                     />
@@ -889,7 +865,279 @@ export default function Edit() {
                     <Controller
                       name="document.idCard"
                       control={control}
-                      rules={{ required: "*Kolom ini wajib diisi" }}
+                      defaultValue={null}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          {field.value && field.value instanceof File ? (
+                            <>
+                              <a
+                                href={URL.createObjectURL(field.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                <p>
+                                  {field.value
+                                    ? field.value.name.length <= 20
+                                      ? field.value.name
+                                      : field.value.name.slice(0, 20) + "..."
+                                    : ""}
+                                </p>
+                              </a>
+                              <p
+                                className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                onClick={() => {
+                                  field.onChange(null); // Clears the file field
+                                }}
+                              >
+                                Ganti
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <a
+                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${employeeData.document.idCard}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                {employeeData?.document.idCard &&
+                                typeof employeeData.document.idCard === "string"
+                                  ? employeeData.document.idCard.length <= 20
+                                    ? employeeData.document.idCard
+                                    : employeeData.document.idCard.slice(
+                                        0,
+                                        20
+                                      ) + "..."
+                                  : null}
+                              </a>
+                              <label>
+                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                  Click to Upload File
+                                </span>
+                                <input
+                                  {...field}
+                                  type="file"
+                                  value={undefined}
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    handleFileChange(
+                                      e,
+                                      field.onChange,
+                                      field.name as keyof Employee
+                                    );
+                                  }}
+                                />
+                              </label>
+                            </>
+                          )}
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            Image
+                          </span>
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            {"<"} 2 MB
+                          </span>
+                        </div>
+                      )}
+                    />
+                    {errors.document?.idCard && (
+                      <p className="text-red-500 text-sm">
+                        {errors.document?.idCard.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 w-auto">
+                  <p>NPWP</p>
+                  <div className="w-fit">
+                    <Controller
+                      name="document.taxCard"
+                      control={control}
+                      defaultValue={null}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          {field.value && field.value instanceof File ? (
+                            <>
+                              <a
+                                href={URL.createObjectURL(field.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                <p>
+                                  {field.value
+                                    ? field.value.name.length <= 20
+                                      ? field.value.name
+                                      : field.value.name.slice(0, 20) + "..."
+                                    : ""}
+                                </p>
+                              </a>
+                              <p
+                                className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                onClick={() => {
+                                  field.onChange(null); // Clears the file field
+                                }}
+                              >
+                                Ganti
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <a
+                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${employeeData.document.idCard}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                {employeeData?.document.taxCard &&
+                                typeof employeeData.document.taxCard ===
+                                  "string"
+                                  ? employeeData.document.taxCard.length <= 20
+                                    ? employeeData.document.taxCard
+                                    : employeeData.document.taxCard.slice(
+                                        0,
+                                        20
+                                      ) + "..."
+                                  : null}
+                              </a>
+                              <label>
+                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                  Click to Upload File
+                                </span>
+
+                                <input
+                                  {...field}
+                                  type="file"
+                                  value={undefined}
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    handleFileChange(
+                                      e,
+                                      field.onChange,
+                                      field.name as keyof Employee
+                                    );
+                                  }}
+                                />
+                              </label>
+                            </>
+                          )}
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            Image
+                          </span>
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            {"<"} 2 MB
+                          </span>
+                        </div>
+                      )}
+                    />
+                    {errors.document?.taxCard && (
+                      <p className="text-red-500 text-sm">
+                        {errors.document?.taxCard.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 w-auto">
+                  <p>Kartu Keluarga</p>
+                  <div className="w-fit">
+                    <Controller
+                      name="document.familyCard"
+                      control={control}
+                      defaultValue={null}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          {field.value && field.value instanceof File ? (
+                            <>
+                              <a
+                                href={URL.createObjectURL(field.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                <p>
+                                  {field.value
+                                    ? field.value.name.length <= 20
+                                      ? field.value.name
+                                      : field.value.name.slice(0, 20) + "..."
+                                    : ""}
+                                </p>
+                              </a>
+                              <p
+                                className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                onClick={() => {
+                                  field.onChange(null); // Clears the file field
+                                }}
+                              >
+                                Ganti
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <a
+                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/kartukeluarga/${employeeData.document.familyCard}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                              >
+                                {employeeData?.document.familyCard &&
+                                typeof employeeData.document.familyCard ===
+                                  "string"
+                                  ? employeeData.document.familyCard.length <=
+                                    20
+                                    ? employeeData.document.familyCard
+                                    : employeeData.document.familyCard.slice(
+                                        0,
+                                        20
+                                      ) + "..."
+                                  : null}
+                              </a>
+                              <label>
+                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                  Click to Upload File
+                                </span>
+
+                                <input
+                                  {...field}
+                                  type="file"
+                                  value={undefined}
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    handleFileChange(
+                                      e,
+                                      field.onChange,
+                                      field.name as keyof Employee
+                                    );
+                                  }}
+                                />
+                              </label>
+                            </>
+                          )}
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            Image
+                          </span>
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            {"<"} 2 MB
+                          </span>
+                        </div>
+                      )}
+                    />
+                    {errors.document?.familyCard && (
+                      <p className="text-red-500 text-sm">
+                        {errors.document?.familyCard.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 w-auto">
+                  <p>Ijazah Terakhir</p>
+                  <div className="w-fit">
+                    <Controller
+                      name="document.diploma"
+                      control={control}
+                      defaultValue={null}
                       render={({ field }) => (
                         <div className="flex items-center space-x-2">
                           {field.value && field.value instanceof File ? (
@@ -920,16 +1168,17 @@ export default function Edit() {
                           ) : (
                             <>
                               <a
-                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${employeeData.document.idCard}`}
+                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ijazah/${employeeData.document.diploma}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                                className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
                               >
-                                {employeeData?.document.idCard &&
-                                typeof employeeData.document.idCard === "string"
-                                  ? employeeData.document.idCard.length <= 20
-                                    ? employeeData.document.idCard
-                                    : employeeData.document.idCard.slice(
+                                {employeeData?.document.diploma &&
+                                typeof employeeData.document.diploma ===
+                                  "string"
+                                  ? employeeData.document.diploma.length <= 20
+                                    ? employeeData.document.diploma
+                                    : employeeData.document.diploma.slice(
                                         0,
                                         20
                                       ) + "..."
@@ -939,6 +1188,7 @@ export default function Edit() {
                                 <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Click to Upload File
                                 </span>
+
                                 <input
                                   {...field}
                                   type="file"
@@ -946,271 +1196,25 @@ export default function Edit() {
                                   accept="image/*"
                                   className="hidden"
                                   onChange={(e) => {
-                                    handleFileChange(e, field.onChange, field.name as keyof Employee);
+                                    handleFileChange(
+                                      e,
+                                      field.onChange,
+                                      field.name as keyof Employee
+                                    );
                                   }}
                                 />
                               </label>
-
-                              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                Image
-                              </span>
-                              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                {"<"} 2 MB
-                              </span>
                             </>
                           )}
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            Image
+                          </span>
+                          <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                            {"<"} 2 MB
+                          </span>
                         </div>
                       )}
                     />
-                    {errors.document?.idCard && (
-                      <p className="text-red-500 text-sm">
-                        {errors.document?.idCard.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2 w-auto">
-                  <p>NPWP</p>
-                  <div className="w-fit">
-                    <label>
-                      <Controller
-                        name="document.taxCard"
-                        control={control}
-                        rules={{ required: "*Kolom ini wajib diisi" }}
-                        render={({ field }) => (
-                          <div className="flex items-center space-x-2">
-                            {field.value && field.value instanceof File ? (
-                              <>
-                                <a
-                                  href={URL.createObjectURL(field.value)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                                >
-                                  <p>
-                                    {field.value
-                                      ? field.value.name.length <= 20
-                                        ? field.value.name
-                                        : field.value.name.slice(0, 20) + "..."
-                                      : ""}
-                                  </p>
-                                </a>
-                                <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
-                                  onClick={() => {
-                                    field.onChange(null); // Clears the file field
-                                  }}
-                                >
-                                  Ganti
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Click to Upload File
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Image
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  {"<"} 2 MB
-                                </span>
-                              </>
-                            )}
-                            <input
-                              {...field}
-                              type="file"
-                              value={undefined}
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files
-                                  ? e.target.files[0]
-                                  : null;
-                                if (file) {
-                                  // Check if file size exceeds 2MB
-                                  if (file.size > 2 * 1024 * 1024) {
-                                    setError("document.taxCard", {
-                                      type: "manual",
-                                      message:
-                                        "File size should be less than 2MB",
-                                    });
-                                  } else {
-                                    field.onChange(file);
-                                  }
-                                }
-                              }}
-                            />
-                          </div>
-                        )}
-                      />
-                    </label>
-                    {errors.document?.taxCard && (
-                      <p className="text-red-500 text-sm">
-                        {errors.document?.taxCard.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2 w-auto">
-                  <p>Kartu Keluarga</p>
-                  <div className="w-fit">
-                    <label>
-                      <Controller
-                        name="document.familyCard"
-                        control={control}
-                        rules={{ required: "*Kolom ini wajib diisi" }}
-                        render={({ field }) => (
-                          <div className="flex items-center space-x-2">
-                            {field.value && field.value instanceof File ? (
-                              <>
-                                <a
-                                  href={URL.createObjectURL(field.value)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                                >
-                                  <p>
-                                    {field.value
-                                      ? field.value.name.length <= 20
-                                        ? field.value.name
-                                        : field.value.name.slice(0, 20) + "..."
-                                      : ""}
-                                  </p>
-                                </a>
-                                <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
-                                  onClick={() => {
-                                    field.onChange(null); // Clears the file field
-                                  }}
-                                >
-                                  Ganti
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Click to Upload File
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Image
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  {"<"} 2 MB
-                                </span>
-                              </>
-                            )}
-                            <input
-                              {...field}
-                              type="file"
-                              value={undefined}
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files
-                                  ? e.target.files[0]
-                                  : null;
-                                if (file) {
-                                  // Check if file size exceeds 2MB
-                                  if (file.size > 2 * 1024 * 1024) {
-                                    setError("document.familyCard", {
-                                      type: "manual",
-                                      message:
-                                        "File size should be less than 2MB",
-                                    });
-                                  } else {
-                                    field.onChange(file);
-                                  }
-                                }
-                              }}
-                            />
-                          </div>
-                        )}
-                      />
-                    </label>
-                    {errors.document?.familyCard && (
-                      <p className="text-red-500 text-sm">
-                        {errors.document?.familyCard.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2 w-auto">
-                  <p>Ijazah Terakhir</p>
-                  <div className="w-fit">
-                    <label>
-                      <Controller
-                        name="document.diploma"
-                        control={control}
-                        rules={{ required: "*Kolom ini wajib diisi" }}
-                        render={({ field }) => (
-                          <div className="flex items-center space-x-2">
-                            {field.value && field.value instanceof File ? (
-                              <>
-                                <a
-                                  href={URL.createObjectURL(field.value)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                                >
-                                  <p>
-                                    {field.value
-                                      ? field.value.name.length <= 20
-                                        ? field.value.name
-                                        : field.value.name.slice(0, 20) + "..."
-                                      : ""}
-                                  </p>
-                                </a>
-                                <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
-                                  onClick={() => {
-                                    field.onChange(null); // Clears the file field
-                                  }}
-                                >
-                                  Ganti
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Click to Upload File
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  Image
-                                </span>
-                                <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                                  {"<"} 2 MB
-                                </span>
-                              </>
-                            )}
-                            <input
-                              {...field}
-                              type="file"
-                              value={undefined}
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files
-                                  ? e.target.files[0]
-                                  : null;
-                                if (file) {
-                                  // Check if file size exceeds 2MB
-                                  if (file.size > 2 * 1024 * 1024) {
-                                    setError("document.diploma", {
-                                      type: "manual",
-                                      message:
-                                        "File size should be less than 2MB",
-                                    });
-                                  } else {
-                                    field.onChange(file);
-                                  }
-                                }
-                              }}
-                            />
-                          </div>
-                        )}
-                      />
-                    </label>
                     {errors.document?.diploma && (
                       <p className="text-red-500 text-sm">
                         {errors.document?.diploma.message}

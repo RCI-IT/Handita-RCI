@@ -151,7 +151,10 @@ export const editDataWithFile = async(data:Employee, id: string) => {
       value.constructor === Object
     ) {
       for (const [nestedKey, nestedValue] of Object.entries(value)) {
-        if (nestedValue instanceof File) {
+        if (nestedValue === undefined || nestedValue === null) {
+          continue;
+        }
+        else if (nestedValue instanceof File) {
           formData.append(
             `${nestedKey}`,
             nestedValue,
@@ -173,10 +176,6 @@ export const editDataWithFile = async(data:Employee, id: string) => {
       `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
       {
         method: "PUT",
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        //   // Add any additional headers if needed
-        // },
         body: formData,
       }
     );
