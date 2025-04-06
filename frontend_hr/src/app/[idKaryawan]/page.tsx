@@ -2,7 +2,7 @@
 import Breadcrumb from "@/components/breadcrumb";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useKaryawanDataDetail } from "@/api/api2";
+import { useKaryawanDataDetail } from "@/api/apiKaryawan";
 import IsNotFound from "./notFound";
 import LoadingPage from "@/components/loading";
 import DocumentCard from "./documentCard";
@@ -53,9 +53,15 @@ export default function DetailKaryawan() {
       <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
         <div className="w-full h-auto flex justify-between items-center py-4 px-4">
           <h3 className="text-xl font-semibold space-y-4">Profil Karyawan</h3>
-          <Link href={`/edit/${idKaryawan}`} className="flex space-x-2 hover:text-blue-600">
-            <TbEdit className={`text-2xl text-blue-600`} />
-            <p>Edit</p>
+          <Link
+            href={`/edit/${idKaryawan}`}
+            className="flex space-x-2 hover:text-blue-600 group"
+          >
+            <TbEdit
+              className={`text-2xl text-blue-600 
+               transition duration-200 transform ease-in-out group-hover:scale-105 group-active:scale-75`}
+            />
+            <p className="text-blue-600">Edit</p>
           </Link>
         </div>
 
@@ -106,10 +112,20 @@ export default function DetailKaryawan() {
             </div>
             <div className="font-light text-gray-500">
               <p>{data.birth}</p>
-              <p>{data.birthDate}</p>
+              <p>{data.birthDate.slice(0,10)}</p>
               <p>{data.religion}</p>
               <p>{data.email}</p>
-              <p>{data.phone}</p>
+              <p>
+                <a
+                  href={`https://wa.me/${data.phone}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-green-500 hover:bg-blue-100 hover:scale-105 
+                  transition-all duration-300 ease-in-out py-1 rounded-md"
+                >
+                  {data.phone}
+                </a>
+              </p>
             </div>
           </div>
         </div>
@@ -126,12 +142,9 @@ export default function DetailKaryawan() {
         <div className="w-full overflow-y-auto flex space-x-3 py-4 px-4">
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
-            <p>S1 = {data.education}</p>
+            <p>{data.education}</p>
             <p className="font-light text-gray-500 text-sm">
-              tanggal lulus = {data.education}
-            </p>
-            <p className="font-light text-gray-500 text-sm">
-              jurusan = {data.major}
+              {data.major}
             </p>
           </div>
         </div>
@@ -148,7 +161,7 @@ export default function DetailKaryawan() {
           <div>
             <p>{data.position}</p>
             <p className="font-light text-gray-500 text-sm">{data.status}</p>
-            <p className="font-light text-gray-500 text-sm">{data.hireDate}</p>
+            <p className="font-light text-gray-500 text-sm">{data.hireDate.slice(0,10)}</p>
           </div>
         </div>
       </div>

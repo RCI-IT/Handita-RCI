@@ -6,9 +6,11 @@ import { useForm } from "react-hook-form";
 import { Employee } from "@/types/daftarKaryawan";
 import { Controller } from "react-hook-form";
 import Image from "next/image";
-import { postKaryawanWithFile, useKaryawanData } from "@/api/api2";
+import { postKaryawanWithFile, useKaryawanData } from "@/api/apiKaryawan";
 import { checkDuplicate } from "@/function/check-unique";
 import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
+import { redirect } from "next/navigation";
+import { inputNumberOnly } from "@/function/numberOnly";
 
 export default function TambahKaryawan() {
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
@@ -21,27 +23,25 @@ export default function TambahKaryawan() {
     trigger,
     formState: { errors },
   } = useForm<Employee>({
-    mode: "onSubmit",
+    mode: "onBlur",
   });
 
   const handlePrevious = () => {
     setStep((prevStep) => prevStep - 1);
   };
 
-  const [showError, setShowError] = useState(false);
   const handleNext = async () => {
     // Trigger validation for all fields
     const isValid = await trigger();
 
-    if (showError && isValid) {
+    if (isValid) {
       // Proceed to the next step
       // Your existing logic for moving to the next step
       setStep((prevStep) => prevStep + 1);
-      setShowError(false);
     } else {
       // Display error messages or handle them as needed
       console.log("Validation errors, cannot proceed to the next step");
-      setShowError(true);
+      return "Validation errors, cannot proceed to the next step";
     }
   };
 
@@ -50,27 +50,19 @@ export default function TambahKaryawan() {
   const onSubmit = async (data: Employee) => {
     try {
       setLoadSubmit(true);
-      // const simpan = await axios.post(url, formData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // });
-      //   const simpan = await postFormData(url, data);
-      // Handle the response, e.g., show a success message or navigate to a different page
-      // toast.success("Successfully created!");
-
       // Tampilkan data yang diinput di console
       console.log("Data yang disubmit: ", data);
 
-      setLoadSubmit(false);
       await postKaryawanWithFile(data);
+      setLoadSubmit(false);
+      redirect("/daftar-karyawan");
 
       // setTimeout(() => {
       //   window.location.href = "/personalia/karyawan/";
       // }, 3000);
-    } catch (error) {
-      console.error("Error saving data", error);
+    } catch {
       setLoadSubmit(false);
+      alert("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
     }
   };
 
@@ -80,7 +72,6 @@ export default function TambahKaryawan() {
     return "Loading...";
   }
   if (error) {
-    return "Error fetching employee data";
   }
   if (isNotFound) {
     return "No employee data available";
@@ -99,7 +90,30 @@ export default function TambahKaryawan() {
     : [];
 
   return (
-    <div className="w-full pt-8 pr-6">
+    <div className="min-w-screen pt-8 pr-6">
+      {loadSubmit && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+          <svg
+            aria-hidden="true"
+            role="status"
+            className="inline w-8 h-8 text-white animate-spin"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="#E5E7EB"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentColor"
+            />
+          </svg>
+          <span className="text-white">Loading...</span>
+        </div>
+      )}
+
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Karyawan</p>
 
@@ -111,11 +125,11 @@ export default function TambahKaryawan() {
         {/* ---------------- Form Tambah Karyawan ---------------- */}
         From Tambah Karyawan
         {/* Island Pembagian 4 Steps */}
-        <div className="min-w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between">
+        <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between md:space-x-2">
           {steps.map((label, index) => (
             <Fragment key={index}>
               <div
-                className={`flex items-center space-x-3 ${
+                className={`flex items-center 2xl:space-x-3  md:space-x-6 ${
                   step + 1 > index ? "text-[#252525]" : "text-slate-200"
                 }`}
               >
@@ -128,9 +142,8 @@ export default function TambahKaryawan() {
                   0{index + 1} {label}
                 </p>
               </div>
-
               <div
-                className={`w-56 h-[2px] bg-slate-400 rounded-lg ${
+                className={`w-56 md:w-32 h-[2px] bg-slate-400 rounded-lg ${
                   index === steps.length - 1 ? "hidden" : ""
                 }`}
               />
@@ -148,7 +161,7 @@ export default function TambahKaryawan() {
               <div className="flex md:space-x-6 items-start p-6 w-full">
                 {/* Render your fields for step 0 using Controller */}
                 {/* Input Gambar */}
-                <div className="w-[10%]">
+                <div className="2xl:w-[10%] md:w-[15%]">
                   <Controller
                     name="image"
                     control={control}
@@ -176,20 +189,13 @@ export default function TambahKaryawan() {
                               alt="Profile Picture"
                               width={400}
                               height={400}
-                              className="rounded-full w-32 h-32 mx-auto border-4 border-blueBase mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
+                              className="rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-30 lg:h-30 mx-auto border-4 border-blueBase mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300 object-top object-cover"
                             />
                           </>
                         ) : (
-                          // {/* Hover effect */}
-                          // <img
-                          //   src="https://i.pravatar.cc/300"
-                          //   alt="Profile Picture"
-                          //   className="rounded-full w-32 h-32 mx-auto border-4 border-indigo-800 mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
-                          // />
-
-                          <div className="relative w-28 h-28 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
+                          <div className="relative w-28 h-28 sm:w-40 sm:h-40 lg:w-30 lg:h-30 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
                             <svg
-                              className="absolute w-32 h-32 text-gray-400 -left-2"
+                              className="absolute w-32 h-32 lg:w-48 lg:h-48 text-gray-400 -left-2 lg:-left-4"
                               fill="currentColor"
                               viewBox="0 0 32 32"
                               xmlns="http://www.w3.org/2000/svg"
@@ -263,7 +269,7 @@ export default function TambahKaryawan() {
                   />
                 </div>
 
-                <div className="w-3/4 flex flex-col space-y-6 px-6">
+                <div className="2xl:w-3/4 md:w-[85%] flex flex-col space-y-6 px-6">
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
                     <p>Nomor Karyawan</p>
                     <div className="w-3/4">
@@ -305,7 +311,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="employeeNumber"
-                            // onKeyDown={inputNumberOnly}
+                            onKeyDown={inputNumberOnly}
                             // onChange={(e) =>
                             //   field.onChange(formatEmployeeNumber(e.target.value))
                             // } // Format angka sebelum update nilai form
@@ -392,6 +398,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="idCardNumber"
+                            onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
                         )}
@@ -633,6 +640,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="phone"
+                            onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
                         )}
@@ -647,7 +655,7 @@ export default function TambahKaryawan() {
             ) : null}
 
             {step === 1 ? (
-              <div className="w-3/4 flex flex-col space-y-6 p-6">
+              <div className="2xl:w-3/4 md:w-full flex flex-col space-y-6 p-6">
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
                   <p>Pendidikan Terakhir</p>
                   <div className="w-3/4">
@@ -721,7 +729,7 @@ export default function TambahKaryawan() {
             ) : null}
 
             {step === 2 ? (
-              <div className="w-3/4 flex flex-col space-y-6 p-6">
+              <div className="2xl:w-3/4 md:w-full flex flex-col space-y-6 p-6">
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
                   <p>Posisi</p>
                   <div className="w-3/4">
@@ -835,7 +843,7 @@ export default function TambahKaryawan() {
                     <span className="text-errorFormColor text-xs">
                       {errors.salary && <p>{errors.salary.message}</p>}
                     </span>
-                  </div> 
+                  </div>
                 </div>
               </div>
             ) : null}
@@ -1197,11 +1205,13 @@ export default function TambahKaryawan() {
                 type="button"
                 onClick={handlePrevious}
                 disabled={step > 0 ? false : true}
-                className={`w-24 rounded-lg border-2 px-2 py-2 focus:outline-none dark:placeholder-gray-400 font-medium ${
-                  step > 0
-                    ? "text-[#252525] border-gray-600 dark:border-gray-600 "
-                    : "text-slate-200 border-gray-200 dark:border-gray-600 "
-                }`}
+                className={`w-24 rounded-lg border-2 px-2 py-2 dark:placeholder-gray-400 font-medium 
+                  transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-lg active:scale-95
+                  ${
+                    step > 0
+                      ? "text-[#252525] border-gray-600 dark:border-gray-600 hover:border-blueBase hover:text-blueBase hover:bg-blueBg"
+                      : "text-slate-200 border-gray-200 dark:border-gray-600 "
+                  }`}
               >
                 Previous
               </button>
@@ -1210,11 +1220,19 @@ export default function TambahKaryawan() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className={`w-24 rounded-lg border-2 px-2 py-2 focus:outline-none dark:placeholder-gray-400 font-medium ${
-                    step < steps.length - 1
-                      ? "text-[#252525] border-gray-600 dark:border-gray-600 "
-                      : "text-slate-200 border-gray-200 dark:border-gray-600 "
-                  }`}
+                  onKeyDown={(e) => {
+                    // Menangani Enter atau Space key
+                    if (e.key === "Enter" || e.key === " ") {
+                      handleNext();
+                    }
+                  }}
+                  className={`w-24 rounded-lg border-2 px-2 py-2 dark:placeholder-gray-400 font-medium 
+                    transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-lg active:scale-95
+                    ${
+                      step < steps.length - 1
+                        ? "text-[#252525] border-gray-600 dark:border-gray-600 hover:border-blueBase hover:text-blueBase hover:bg-blueBg"
+                        : "text-slate-200 border-gray-200 dark:border-gray-600 "
+                    }`}
                   // disabled={!isValid}
                 >
                   Next
@@ -1222,28 +1240,34 @@ export default function TambahKaryawan() {
               )}
 
               {step === steps.length - 1 && (
-                <button type="submit">
+                <button
+                  type="submit"
+                  className={`w-24 rounded-lg border-2 flex justify-center items-center dark:placeholder-gray-400 font-medium transform duration-200 transition
+                    ${
+                      loadSubmit
+                        ? "text-slate-200 border-gray-200 dark:border-gray-600 disabled cursor-none scale-95"
+                        : "hover:border-blueBase hover:text-blueBase hover:bg-blueBg border-gray-600 dark:border-gray-600 scale-100"
+                    }
+                  `}
+                >
                   {loadSubmit ? (
-                    <>
-                      <svg
-                        aria-hidden="true"
-                        role="status"
-                        className="inline w-4 h-4 me-3 text-white animate-spin"
-                        viewBox="0 0 100 101"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                          fill="#E5E7EB"
-                        />
-                        <path
-                          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      Loading...
-                    </>
+                    <svg
+                      aria-hidden="true"
+                      role="status"
+                      className="inline w-4 h-4 text-blueBase animate-spin"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="#E5E7EB"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentColor"
+                      />
+                    </svg>
                   ) : (
                     <p>Save</p>
                   )}

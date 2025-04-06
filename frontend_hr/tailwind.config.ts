@@ -14,6 +14,7 @@ export default {
         primaryColor: "var(--primary-color)",
         errorFormColor : "var(--error-color)",
         blueBase: '#1649AC',
+        blueBg: "var(--blueBg)"
       },
     },
   },

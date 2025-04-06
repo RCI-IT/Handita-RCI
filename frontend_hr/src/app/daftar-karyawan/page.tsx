@@ -8,12 +8,12 @@ import { HiUsers } from "react-icons/hi";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock } from "react-icons/fa6";
 import { Employee } from "@/types/daftarKaryawan";
-import { deleteData, useKaryawanData } from "@/api/api2";
+import { deleteData, useKaryawanData } from "@/api/apiKaryawan";
 import { ColumnDef } from "@tanstack/react-table";
 // import axios from "axios";
 import Table from "@/components/tabel";
 import Link from "next/link";
-import { TbEdit } from "react-icons/tb";
+import { TbEye } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import LoadingPage from "@/components/loading";
 
@@ -105,7 +105,7 @@ export default function DaftarKaryawan() {
         return (
           <div className="flex justify-center place-items-center space-x-5">
             <Link href={`/${idKaryawan}`}>
-              <TbEdit className={`text-2xl text-blue-600`} />
+              <TbEye className={`text-2xl text-blue-600`} />
             </Link>
             <button onClick={(e) => handleDeleteClick(idKaryawan, e)}>
               <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
@@ -182,6 +182,7 @@ export default function DaftarKaryawan() {
         objectData={data ?? []}
         columns={columns}
         judul={`Daftar Karyawan`}
+        tambahLink={'/tambah-karyawan'}
       />
     </div>
   );

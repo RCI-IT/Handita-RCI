@@ -9,13 +9,14 @@ import {
   editDataWithFile,
   useKaryawanData,
   useKaryawanDataDetail,
-} from "@/api/api2";
+} from "@/api/apiKaryawan";
 import { checkDuplicate } from "@/function/check-unique";
 import { useParams } from "next/navigation";
 import LoadingPage from "@/components/loading";
 import IsNotFound from "@/app/[idKaryawan]/notFound";
 import { validateFile, validations } from "@/function/fileValidation";
 import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
+import { inputNumberOnly } from "@/function/numberOnly";
 
 export default function Edit() {
   const params = useParams<{ idKaryawan: string }>();
@@ -28,20 +29,16 @@ export default function Edit() {
     setStep((prevStep) => prevStep - 1);
   };
 
-  const [showError, setShowError] = useState(false);
   const handleNext = async () => {
     // Trigger validation for all fields
     const isValid = await trigger();
-
-    if (showError && isValid) {
+    if (isValid) {
       // Proceed to the next step
       // Your existing logic for moving to the next step
       setStep((prevStep) => prevStep + 1);
-      setShowError(false);
     } else {
       // Display error messages or handle them as needed
       console.log("Validation errors, cannot proceed to the next step");
-      setShowError(true);
     }
   };
 
@@ -62,43 +59,21 @@ export default function Edit() {
     formState: { errors },
   } = useForm<Employee>({
     mode: "onSubmit",
-    // defaultValues: {
-    //   employeeNumber: employeeData?.employeeNumber,
-    //   idCardNumber: "",
-    //   fullName: "",
-    //   birth: "",
-    //   birthDate: "",
-    //   gender: "",
-    //   religion: "",
-    //   address: "",
-    //   email: "",
-    //   phone: "",
-    //   education: "",
-    //   major: "",
-    //   position: "",
-    //   status: "",
-    //   salary: "",
-    //   hireDate: "",
-    // },
   });
   const onSubmit = async (data: Employee) => {
     try {
       setLoadSubmit(true);
-      // Handle the response, e.g., show a success message or navigate to a different page
-      // toast.success("Successfully created!");
-
       // Tampilkan data yang diinput di console
       console.log("Data yang disubmit: ", data);
 
-      setLoadSubmit(false);
       await editDataWithFile(data, idKaryawan);
-
-      // setTimeout(() => {
-      //   window.location.href = "/personalia/karyawan/";
-      // }, 3000);
-    } catch (error) {
-      console.error("Error saving data", error);
+      // window.location.href = `/${idKaryawan}`;
+      setTimeout(() => {
+        window.location.href = `/${idKaryawan}`;
+      }, 3000);
+    } catch {
       setLoadSubmit(false);
+      alert("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
     }
   };
 
@@ -151,6 +126,28 @@ export default function Edit() {
 
   return (
     <div className="w-full pt-8 pr-6">
+      {loadSubmit && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+          <svg
+            aria-hidden="true"
+            role="status"
+            className="inline w-8 h-8 text-white animate-spin"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="#E5E7EB"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentColor"
+            />
+          </svg>
+          <span className="text-white">Loading...</span>
+        </div>
+      )}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Karyawan</p>
 
@@ -160,7 +157,7 @@ export default function Edit() {
 
       <div className="pt-5 space-y-5 relative">
         {/* ---------------- Form Tambah Karyawan ---------------- */}
-        From Tambah Karyawan {employeeData?.birthDate}
+        From Edit Karyawan
         {/* Island Pembagian 4 Steps */}
         <div className="min-w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between">
           {steps.map((label, index) => (
@@ -181,7 +178,7 @@ export default function Edit() {
               </div>
 
               <div
-                className={`w-56 h-[2px] bg-slate-400 rounded-lg ${
+                className={`w-56 h-[2px] md:w-32 bg-slate-400 rounded-lg ${
                   index === steps.length - 1 ? "hidden" : ""
                 }`}
               />
@@ -199,7 +196,7 @@ export default function Edit() {
               <div className="flex md:space-x-6 items-start p-6 w-full">
                 {/* Render your fields for step 0 using Controller */}
                 {/* Input Gambar */}
-                <div className="w-[10%]">
+                <div className="2xl:w-[10%] md:w-[15%]">
                   <Controller
                     name="image"
                     control={control}
@@ -276,7 +273,7 @@ export default function Edit() {
                   />
                 </div>
 
-                <div className="w-3/4 flex flex-col space-y-6 px-6">
+                <div className="2xl:w-3/4 md:w-[85%] flex flex-col space-y-6 px-6">
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
                     <p>Nomor Karyawan</p>
                     <div className="w-3/4">
@@ -302,13 +299,13 @@ export default function Edit() {
                               cleanedValue,
                               existingEmployeeNumbers
                             );
+
                             if (
                               isDuplicate &&
                               cleanedValue !== employeeData.employeeNumber
                             ) {
                               return "Nomor pegawai sudah terdaftar";
                             }
-
                             return true;
                           },
                           pattern: {
@@ -321,7 +318,7 @@ export default function Edit() {
                           <input
                             {...field}
                             id="employeeNumber"
-                            // onKeyDown={inputNumberOnly}
+                            onKeyDown={inputNumberOnly}
                             // onChange={(e) =>
                             //   field.onChange(formatEmployeeNumber(e.target.value))
                             // } // Format angka sebelum update nilai form
@@ -407,6 +404,7 @@ export default function Edit() {
                           <input
                             {...field}
                             id="idCardNumber"
+                            onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
                         )}
@@ -650,6 +648,7 @@ export default function Edit() {
                           <input
                             {...field}
                             id="phone"
+                            onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
                         )}
@@ -664,7 +663,7 @@ export default function Edit() {
             ) : null}
 
             {step === 1 ? (
-              <div className="w-3/4 flex flex-col space-y-6 p-6">
+              <div className="2xl:w-3/4 md:w-full flex flex-col space-y-6 p-6">
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
                   <p>Pendidikan Terakhir</p>
                   <div className="w-3/4">
@@ -738,7 +737,7 @@ export default function Edit() {
             ) : null}
 
             {step === 2 ? (
-              <div className="w-3/4 flex flex-col space-y-6 p-6">
+              <div className="2xl:w-3/4 md:w-full flex flex-col space-y-6 p-6">
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
                   <p>Posisi</p>
                   <div className="w-3/4">
@@ -1230,11 +1229,13 @@ export default function Edit() {
                 type="button"
                 onClick={handlePrevious}
                 disabled={step > 0 ? false : true}
-                className={`w-24 rounded-lg border-2 px-2 py-2 focus:outline-none dark:placeholder-gray-400 font-medium ${
-                  step > 0
-                    ? "text-[#252525] border-gray-600 dark:border-gray-600 "
-                    : "text-slate-200 border-gray-200 dark:border-gray-600 "
-                }`}
+                className={`w-24 rounded-lg border-2 px-2 py-2 dark:placeholder-gray-400 font-medium 
+                  transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-lg active:scale-95
+                  ${
+                    step > 0
+                      ? "text-[#252525] border-gray-600 dark:border-gray-600 hover:border-blueBase hover:text-blueBase hover:bg-blueBg"
+                      : "text-slate-200 border-gray-200 dark:border-gray-600 "
+                  }`}
               >
                 Previous
               </button>
@@ -1243,11 +1244,19 @@ export default function Edit() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className={`w-24 rounded-lg border-2 px-2 py-2 focus:outline-none dark:placeholder-gray-400 font-medium ${
-                    step < steps.length - 1
-                      ? "text-[#252525] border-gray-600 dark:border-gray-600 "
-                      : "text-slate-200 border-gray-200 dark:border-gray-600 "
-                  }`}
+                  onKeyDown={(e) => {
+                    // Menangani Enter atau Space key
+                    if (e.key === "Enter" || e.key === " ") {
+                      handleNext();
+                    }
+                  }}
+                  className={`w-24 rounded-lg border-2 px-2 py-2 dark:placeholder-gray-400 font-medium 
+                    transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-lg active:scale-95
+                    ${
+                      step < steps.length - 1
+                        ? "text-[#252525] border-gray-600 dark:border-gray-600 hover:border-blueBase hover:text-blueBase hover:bg-blueBg"
+                        : "text-slate-200 border-gray-200 dark:border-gray-600 "
+                    }`}
                   // disabled={!isValid}
                 >
                   Next
@@ -1255,28 +1264,35 @@ export default function Edit() {
               )}
 
               {step === steps.length - 1 && (
-                <button type="submit">
+                <button
+                  type="submit"
+                  className={`w-24 rounded-lg border-2 flex justify-center items-center dark:placeholder-gray-400 font-medium transition duration-200 transform
+                    ${
+                      loadSubmit
+                        ? "text-slate-200 border-gray-200 dark:border-gray-600 cursor-none scale-95"
+                        : "hover:border-blueBase hover:text-blueBase hover:bg-blueBg border-gray-600 dark:border-gray-600 scale-100"
+                    }
+                  `}
+                  disabled={loading}
+                >
                   {loadSubmit ? (
-                    <>
-                      <svg
-                        aria-hidden="true"
-                        role="status"
-                        className="inline w-4 h-4 me-3 text-white animate-spin"
-                        viewBox="0 0 100 101"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                          fill="#E5E7EB"
-                        />
-                        <path
-                          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      Loading...
-                    </>
+                    <svg
+                      aria-hidden="true"
+                      role="status"
+                      className="inline w-4 h-4 text-blueBase animate-spin"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="#E5E7EB"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentColor"
+                      />
+                    </svg>
                   ) : (
                     <p>Save</p>
                   )}

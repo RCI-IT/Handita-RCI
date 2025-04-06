@@ -1,18 +1,3 @@
-// Fungsi API untuk mengambil data karyawan
-// export const fetchKaryawan = async (id?: string) => {
-//   const url = id ? `/api/karyawan/${id}` : "/api/karyawan"; // API endpoint berdasarkan ID (opsional)
-//   const response = await fetch(url);
-
-//   if (!response.ok) {
-//     throw new Error(
-//       `Gagal mengambil data karyawan${id ? ` dengan ID: ${id}` : ""}`
-//     );
-//   }
-
-//   return await response.json();
-// };
-
-// utils/fetchKaryawan.ts
 import useSWR, { mutate } from "swr";
 import { Employee } from "@/types/daftarKaryawan";
 
@@ -92,11 +77,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
           // const uniqueNestedFileName = `${key}.${nestedKey}_${Date.now()}_${
           //   nestedValue.name
           // }`;
-          formData.append(
-            `${nestedKey}`,
-            nestedValue,
-            nestedValue.name
-          );
+          formData.append(`${nestedKey}`, nestedValue, nestedValue.name);
         } else {
           // If it's not a file, append as a string
           formData.append(`${nestedKey}`, String(nestedValue));
@@ -123,7 +104,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
     );
 
     mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
-    console.log("Data berhasil ditambah")
+    console.log("Data berhasil ditambah");
     return response.status;
   } catch (error) {
     console.error("Error posting data:", error); // Log the error for debugging
@@ -131,18 +112,16 @@ export const postKaryawanWithFile = async (data: Employee) => {
   }
 };
 
-export const editDataWithFile = async(data:Employee, id: string) => {
+export const editDataWithFile = async (data: Employee, id: string) => {
   const formData = data instanceof FormData ? data : new FormData();
 
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined || value === null) {
       continue;
-    }
-    else if (key === "price" && typeof value === "string") {
+    } else if (key === "price" && typeof value === "string") {
       const harga = parseFloat(value.replace(/[^0-9]/g, ""));
       formData.append(key, String(harga));
-    }
-    else if (value instanceof File) {
+    } else if (value instanceof File) {
       const uniqueFileName = `${key}_${value.name}`;
       formData.append(key, value, uniqueFileName);
     } else if (
@@ -153,13 +132,8 @@ export const editDataWithFile = async(data:Employee, id: string) => {
       for (const [nestedKey, nestedValue] of Object.entries(value)) {
         if (nestedValue === undefined || nestedValue === null) {
           continue;
-        }
-        else if (nestedValue instanceof File) {
-          formData.append(
-            `${nestedKey}`,
-            nestedValue,
-            nestedValue.name
-          );
+        } else if (nestedValue instanceof File) {
+          formData.append(`${nestedKey}`, nestedValue, nestedValue.name);
         } else {
           formData.append(`${nestedKey}`, String(nestedValue));
         }
@@ -179,24 +153,28 @@ export const editDataWithFile = async(data:Employee, id: string) => {
         body: formData,
       }
     );
+    mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
+    console.log("Data berhasil diperbaharui");
     return response;
-  }catch (error) {
+  } catch (error) {
     console.error("Error posting data:", error); // Log the error for debugging
     throw new Error("Error posting data");
   }
-}
+};
 
-export const deleteData = async(id: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+export const deleteData = async (id: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
-    throw new Error('Gagal menghapus karyawan');
+    throw new Error("Gagal menghapus karyawan");
   }
   return response.json();
-}
-
+};

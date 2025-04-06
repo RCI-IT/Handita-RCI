@@ -24,6 +24,7 @@ import {
   MdOutlineArrowDropDown,
   MdOutlineArrowDropUp,
 } from "react-icons/md";
+import { redirect } from "next/navigation";
 
 // const defaultColumnSizing = {
 //   size: 150,
@@ -40,6 +41,7 @@ interface ReactTableProps<T extends object> {
   judul?: string;
   //   onPaginationChange?: (pagination: PaginationState) => void;
   className?: string;
+  tambahLink?: string;
 }
 
 function useSkipper() {
@@ -67,6 +69,7 @@ function Table<T extends object>({
   pageCount,
   //   onPaginationChange,
   judul,
+  tambahLink,
 }: // className,
 ReactTableProps<T>) {
   //   const [pagination, setPagination] = useState<PaginationState>({
@@ -128,7 +131,10 @@ ReactTableProps<T>) {
   //       onPaginationChange(pagination);
   //     }
   //   }, [pagination, onPaginationChange]);
-  const tambah = () => {};
+  const tambah = () => {
+    if (tambahLink !== undefined)
+      redirect(tambahLink)
+  };
 
   return (
     <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white py-4 space-y-4">
