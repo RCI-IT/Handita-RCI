@@ -9,7 +9,6 @@ import Image from "next/image";
 import { postKaryawanWithFile, useKaryawanData } from "@/api/apiKaryawan";
 import { checkDuplicate } from "@/function/check-unique";
 import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
-import { redirect } from "next/navigation";
 import { inputNumberOnly } from "@/function/numberOnly";
 
 export default function TambahKaryawan() {
@@ -54,12 +53,12 @@ export default function TambahKaryawan() {
       console.log("Data yang disubmit: ", data);
 
       await postKaryawanWithFile(data);
-      setLoadSubmit(false);
-      redirect("/daftar-karyawan");
+      // setLoadSubmit(false);
+      // redirect("/daftar-karyawan");
 
-      // setTimeout(() => {
-      //   window.location.href = "/personalia/karyawan/";
-      // }, 3000);
+      setTimeout(() => {
+        window.location.href = "/daftar-karyawan";
+      }, 3000);
     } catch {
       setLoadSubmit(false);
       alert("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
