@@ -2,57 +2,40 @@
 
 import Breadcrumb from "@/components/breadcrumb";
 import CardHead from "@/components/card-head";
+import IsNotFound from "@/handle/isNotFound";
+import Table from "@/components/tabel";
+import { LoadingOffPage, LoadingPage } from "@/handle/loading";
+import { useKaryawanData } from "@/services/apiKaryawan";
+import { useDeleteEmployee } from "@/hooks/useDeleteEmployee";
 import Image from "next/image";
 import { FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock } from "react-icons/fa6";
 import { Employee } from "@/types/daftarKaryawan";
-import { deleteData, useKaryawanData } from "@/api/apiKaryawan";
 import { ColumnDef } from "@tanstack/react-table";
-// import axios from "axios";
-import Table from "@/components/tabel";
 import Link from "next/link";
 import { TbEye } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
-import LoadingPage from "@/components/loading";
 
 export default function DaftarKaryawan() {
+  const { handleDelete, isDeleting } = useDeleteEmployee();
   const { data, error, isLoading, isNotFound } = useKaryawanData();
 
   if (isLoading) return <LoadingPage />;
-  if (error) return <div>Error when Load Data: {error.message}</div>;
-  if (isNotFound) return <div>No data was found.</div>;
-  if ("message" in data) {
-    // If data has a message, it is an ErrorResponse
-    return <div>Error: {data.message}</div>;
-  }
+  if (error) return <IsNotFound />;
+  const isError = isNotFound || "message" in data;
 
-  const handleDeleteClick = async (
-    idKaryawan: string,
-    e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>
-  ) => {
-    e.preventDefault(); // Mencegah navigasi otomatis jika ini dipanggil dalam <Link> atau elemen lainnya
+  const safeData = Array.isArray(data) ? data : [];
 
-    // Menampilkan konfirmasi penghapusan
-    const confirmed = window.confirm(
-      "Apakah Anda yakin ingin menghapus karyawan ini?"
-    );
-    if (confirmed) {
-      try {
-        // Menghapus data karyawan
-        await deleteData(idKaryawan);
+  const recentData = safeData.filter((item: Employee) => {
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+    const createdDate = new Date(item.hireDate);
+    return createdDate >= oneMonthAgo && createdDate <= today;
+  });
 
-        // Setelah penghapusan, arahkan pengguna ke halaman daftar karyawan atau tempat lainnya
-        alert("Karyawan berhasil dihapus");
-        window.location.href = "/daftar-karyawan"; // Mengarahkan kembali ke daftar karyawan
-      } catch (error) {
-        // Menangani error jika penghapusan gagal
-        alert("Terjadi kesalahan saat menghapus karyawan");
-        console.error(error);
-      }
-    }
-  };
   const columns: ColumnDef<Employee>[] = [
     {
       id: "image",
@@ -61,14 +44,17 @@ export default function DaftarKaryawan() {
       cell: (ctx) => {
         return (
           <div className="w-32 h-32 relative overflow-hidden mx-auto">
-
             {/* Only render the Image component if ctx.getValue() is a valid string */}
             {typeof ctx.getValue() === "string" && ctx.getValue() !== "" ? (
               <Image
                 src={`${
                   process.env.NEXT_PUBLIC_API_BACKEND
                 }/images/${ctx.getValue()}`}
-                alt={typeof ctx.row.original.image === 'string' ? ctx.row.original.image : 'Profile Image'}
+                alt={
+                  typeof ctx.row.original.image === "string"
+                    ? ctx.row.original.image
+                    : "Profile Image"
+                }
                 width={500}
                 height={500}
                 className="w-full h-full rounded-lg object-cover object-center"
@@ -81,7 +67,7 @@ export default function DaftarKaryawan() {
       },
     },
     {
-      header: "fullName",
+      header: "Nama Lengkap",
       accessorKey: "fullName",
       cell: (ctx) => ctx.getValue(),
     },
@@ -96,6 +82,14 @@ export default function DaftarKaryawan() {
       cell: (ctx) => ctx.getValue(),
     },
     {
+      id: "email",
+      header: "Email Address",
+      cell: (ctx: { row: { original: { email: string } } }) => {
+        const { email } = ctx.row.original;
+        return <span className="font-bold">{email}</span>;
+      },
+    },
+    {
       id: "Aksi",
       header: "Aksi",
       accessorKey: "id",
@@ -107,47 +101,30 @@ export default function DaftarKaryawan() {
             <Link href={`/${idKaryawan}`}>
               <TbEye className={`text-2xl text-blue-600`} />
             </Link>
-            <button onClick={(e) => handleDeleteClick(idKaryawan, e)}>
+            <button onClick={(e) => handleDelete(idKaryawan, e)}>
               <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
             </button>
           </div>
         );
       },
     },
-    // {
-    //     id: 'email',
-    //     header: 'Id Karyawan',
-    //     cell: (ctx: { row: { original: { email: any } } }) => {
-    //         const { email } = ctx.row.original;
-
-    //         return <span className='font-bold'>{email}</span>
-    //     },
-    // },
   ];
 
   return (
     <div className="w-full pt-8 pr-6">
+      {isDeleting && <LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">
           Manajemen Karyawan
         </p>
         <Breadcrumb />
-        <ul>
-          {data?.map((karyawan) => (
-            <li key={karyawan.id}>
-              <h3>{karyawan.fullName}</h3>
-              <p>{karyawan.position}</p>
-              <p>{karyawan.email}</p>
-            </li>
-          ))}
-        </ul>
       </nav>
 
       <div className="flex items-center justify-between w-full py-5 space-x-6">
         <CardHead
           Icon={HiUsers}
           title={""}
-          jumlah={100}
+          jumlah={isError ? 0 : data.length}
           perubahan={"Total Karyawan"}
           itemClass={"items-center"}
           logoClass={"bg-blue-200 text-blue-900 text-4xl p-2"}
@@ -155,7 +132,7 @@ export default function DaftarKaryawan() {
         <CardHead
           Icon={FaUserPlus}
           title={""}
-          jumlah={100}
+          jumlah={recentData.length}
           perubahan={"Karyawan Baru"}
           itemClass={"items-center"}
           logoClass={"bg-green-200 text-green-900 text-4xl p-2"}
@@ -177,13 +154,14 @@ export default function DaftarKaryawan() {
           logoClass={"bg-yellow-200 text-yellow-900 text-4xl p-2"}
         />
       </div>
-
-      <Table
-        objectData={data ?? []}
-        columns={columns}
-        judul={`Daftar Karyawan`}
-        tambahLink={'/tambah-karyawan'}
-      />
+      {data && (
+        <Table
+          objectData={isError ? [] : data}
+          columns={columns}
+          judul={`Daftar Karyawan`}
+          tambahLink={"/tambah-karyawan"}
+        />
+      )}
     </div>
   );
 }

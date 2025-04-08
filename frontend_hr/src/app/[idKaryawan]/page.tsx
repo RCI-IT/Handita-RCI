@@ -1,10 +1,10 @@
 "use client";
 import Breadcrumb from "@/components/breadcrumb";
+import { LoadingPage } from "@/handle/loading";
+import { useKaryawanDataDetail } from "@/services/apiKaryawan";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useKaryawanDataDetail } from "@/api/apiKaryawan";
 import IsNotFound from "./notFound";
-import LoadingPage from "@/components/loading";
 import DocumentCard from "./documentCard";
 import Link from "next/link";
 import { TbEdit } from "react-icons/tb";
@@ -112,7 +112,7 @@ export default function DetailKaryawan() {
             </div>
             <div className="font-light text-gray-500">
               <p>{data.birth}</p>
-              <p>{data.birthDate.slice(0,10)}</p>
+              <p>{data.birthDate.slice(0, 10)}</p>
               <p>{data.religion}</p>
               <p>{data.email}</p>
               <p>
@@ -143,9 +143,7 @@ export default function DetailKaryawan() {
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
             <p>{data.education}</p>
-            <p className="font-light text-gray-500 text-sm">
-              {data.major}
-            </p>
+            <p className="font-light text-gray-500 text-sm">{data.major}</p>
           </div>
         </div>
       </div>
@@ -161,7 +159,9 @@ export default function DetailKaryawan() {
           <div>
             <p>{data.position}</p>
             <p className="font-light text-gray-500 text-sm">{data.status}</p>
-            <p className="font-light text-gray-500 text-sm">{data.hireDate.slice(0,10)}</p>
+            <p className="font-light text-gray-500 text-sm">
+              {data.hireDate.slice(0, 10)}
+            </p>
           </div>
         </div>
       </div>
@@ -193,15 +193,19 @@ export default function DetailKaryawan() {
           {/* Garis Putus-Putus Pembatas */}
           <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
 
-          {/* NPWP */}
-          <DocumentCard
-            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${data.document.taxCard}`}
-            altText="NPWP"
-            label="NPWP"
-          />
+          {data.document.taxCard ? (
+            <>
+              {/* NPWP */}
+              <DocumentCard
+                imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${data.document.taxCard}`}
+                altText="NPWP"
+                label="NPWP"
+              />
 
-          {/* Garis Putus-Putus Pembatas */}
-          <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
+              {/* Garis Putus-Putus Pembatas */}
+              <div className="border-l-2 border-dashed border-gray-500 h-auto"></div>
+            </>
+          ) : null}
 
           {/* Ijazah Terakhir */}
           <DocumentCard

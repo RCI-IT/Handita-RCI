@@ -6,10 +6,11 @@ import { useForm } from "react-hook-form";
 import { Employee } from "@/types/daftarKaryawan";
 import { Controller } from "react-hook-form";
 import Image from "next/image";
-import { postKaryawanWithFile, useKaryawanData } from "@/api/apiKaryawan";
+import { postKaryawanWithFile, useKaryawanData } from "@/services/apiKaryawan";
 import { checkDuplicate } from "@/function/check-unique";
 import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
 import { inputNumberOnly } from "@/function/numberOnly";
+import { LoadingOffPage } from "@/handle/loading";
 
 export default function TambahKaryawan() {
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
@@ -51,14 +52,12 @@ export default function TambahKaryawan() {
       setLoadSubmit(true);
       // Tampilkan data yang diinput di console
       console.log("Data yang disubmit: ", data);
-
       await postKaryawanWithFile(data);
-      // setLoadSubmit(false);
-      // redirect("/daftar-karyawan");
-
-      setTimeout(() => {
-        window.location.href = "/daftar-karyawan";
-      }, 3000);
+      setLoadSubmit(false);
+      alert("Data yang disubmit: ");
+      // setTimeout(() => {
+      //   window.location.href = "/daftar-karyawan";
+      // }, 3000);
     } catch {
       setLoadSubmit(false);
       alert("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
@@ -90,28 +89,7 @@ export default function TambahKaryawan() {
 
   return (
     <div className="min-w-screen pt-8 pr-6">
-      {loadSubmit && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-          <svg
-            aria-hidden="true"
-            role="status"
-            className="inline w-8 h-8 text-white animate-spin"
-            viewBox="0 0 100 101"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-              fill="#E5E7EB"
-            />
-            <path
-              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-              fill="currentColor"
-            />
-          </svg>
-          <span className="text-white">Loading...</span>
-        </div>
-      )}
+      {loadSubmit && <LoadingOffPage />}
 
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Karyawan</p>
@@ -208,11 +186,12 @@ export default function TambahKaryawan() {
                           </div>
                         )}
 
-                        <label className="flex justify-center items-center cursor-pointer">
+                        <label className="flex justify-center items-center cursor-pointer group">
                           <span className="inline-flex items-center">
                             <svg
                               data-slot="icon"
-                              className="w-8 h-8 text-blue-700"
+                              className="w-8 h-8 text-blue-700 group-hover:text-blue-500 dark:group-hover:text-gray-600
+                                transition-transform duration-200 ease-in-out group-hover:scale-100 group-active:scale-75"
                               fill="none"
                               strokeWidth="1.5"
                               stroke="currentColor"
@@ -578,7 +557,7 @@ export default function TambahKaryawan() {
                         rules={{
                           required: "Email harus diisi",
                           validate: (value) => {
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.(com|id|org|co)$/;
                             if (!emailRegex.test(value))
                               return "Format email salah";
 
@@ -876,7 +855,9 @@ export default function TambahKaryawan() {
                                   </p>
                                 </a>
                                 <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                    focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
                                   onClick={() => {
                                     field.onChange(null); // Clears the file field
                                   }}
@@ -886,9 +867,13 @@ export default function TambahKaryawan() {
                               </>
                             ) : (
                               <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                <p
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                    focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
+                                >
                                   Click to Upload File
-                                </span>
+                                </p>
                                 <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Image
                                 </span>
@@ -924,20 +909,6 @@ export default function TambahKaryawan() {
                           </div>
                         )}
                       />
-                      {/* {watch("document.idCard") !== null ||
-                watch("document.idCard") !== undefined ? (
-                  <p
-                    onClick={() => {
-                      // Using the field's onChange to clear the file when "Hapus" is clicked
-                      setValue("document.idCard", null); // Clears the file from the form control
-                    }}
-                    className="text-red-500 cursor-pointer"
-                  >
-                    Hapus
-                  </p>
-                ) : (
-                  ""
-                )} */}
                     </label>
                     {/* Error handling */}
                     {errors.document?.idCard && (
@@ -954,7 +925,6 @@ export default function TambahKaryawan() {
                       <Controller
                         name="document.taxCard"
                         control={control}
-                        rules={{ required: "*Kolom ini wajib diisi" }}
                         render={({ field }) => (
                           <div className="flex items-center space-x-2">
                             {field.value && field.value instanceof File ? (
@@ -974,7 +944,9 @@ export default function TambahKaryawan() {
                                   </p>
                                 </a>
                                 <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                    focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
                                   onClick={() => {
                                     field.onChange(null); // Clears the file field
                                   }}
@@ -984,9 +956,13 @@ export default function TambahKaryawan() {
                               </>
                             ) : (
                               <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                <p
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
+                                >
                                   Click to Upload File
-                                </span>
+                                </p>
                                 <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Image
                                 </span>
@@ -1057,7 +1033,9 @@ export default function TambahKaryawan() {
                                   </p>
                                 </a>
                                 <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                    focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
                                   onClick={() => {
                                     field.onChange(null); // Clears the file field
                                   }}
@@ -1067,9 +1045,13 @@ export default function TambahKaryawan() {
                               </>
                             ) : (
                               <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                <p
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
+                                >
                                   Click to Upload File
-                                </span>
+                                </p>
                                 <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Image
                                 </span>
@@ -1140,7 +1122,9 @@ export default function TambahKaryawan() {
                                   </p>
                                 </a>
                                 <p
-                                  className="px-2 py-2 rounded-lg cursor-pointer font-medium transition-all duration-400 ease-in-out bg-blueBase text-gray-50 hover:bg-[#1648acc9] active:bg-blueBase"
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                    focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
                                   onClick={() => {
                                     field.onChange(null); // Clears the file field
                                   }}
@@ -1150,9 +1134,13 @@ export default function TambahKaryawan() {
                               </>
                             ) : (
                               <>
-                                <span className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                                <p
+                                  className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
+                                   transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
+                                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium"
+                                >
                                   Click to Upload File
-                                </span>
+                                </p>
                                 <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
                                   Image
                                 </span>

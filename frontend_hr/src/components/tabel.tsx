@@ -25,6 +25,7 @@ import {
   MdOutlineArrowDropUp,
 } from "react-icons/md";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 // const defaultColumnSizing = {
 //   size: 150,
@@ -131,10 +132,6 @@ ReactTableProps<T>) {
   //       onPaginationChange(pagination);
   //     }
   //   }, [pagination, onPaginationChange]);
-  const tambah = () => {
-    if (tambahLink !== undefined)
-      redirect(tambahLink)
-  };
 
   return (
     <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white py-4 space-y-4">
@@ -159,13 +156,14 @@ ReactTableProps<T>) {
           </select>
         </div>
         <div className="flex space-x-4 items-center">
-          <button
-            className="bg-[#18529E] rounded-lg pr-2 text-white flex justify-around items-center py-1"
-            onClick={() => tambah()}
+          <Link
+            className="bg-[#18529E] rounded-lg pr-2 text-white flex justify-around items-center py-1
+              transition transform duration-300 ease-in-out hover:scale-100 active:scale-75"
+            href={tambahLink ? tambahLink : ""}
           >
             <MdOutlineAdd className="text-2xl" />
             <p>Tambah</p>
-          </button>
+          </Link>
           <div className="relative">
             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
               <svg

@@ -49,11 +49,17 @@ export const postKaryawanWithFile = async (data: Employee) => {
 
   // Iterate over properties of data object
   for (const [key, value] of Object.entries(data)) {
-    // Check if the value is undefined or null
-    if (value === undefined || value === null) {
-      // Skip processing this key-value pair
+    // Jika nilainya undefined, kita skip agar tidak dikirim
+    if (value === undefined) {
       continue;
     }
+
+    // Jika nilainya null, kita ubah jadi string "null" (opsional, bisa disesuaikan)
+    if (value === null) {
+      formData.append(key, "null");
+      continue;
+    }
+
     // Check if the key is "price" and the value is a string
     else if (key === "price" && typeof value === "string") {
       // Convert the "price" value to a number and replace non-numeric characters
@@ -66,13 +72,21 @@ export const postKaryawanWithFile = async (data: Employee) => {
       // Append a timestamp to the original file name to make it unique
       const uniqueFileName = `${key}_${value.name}`;
       formData.append(key, value, uniqueFileName);
-    } else if (
+    }
+
+    // Jika value adalah nested object (misalnya: document: { idCard, taxCard, ... })
+    else if (
       value &&
       typeof value === "object" &&
       value.constructor === Object
     ) {
       // If the value is an object, assume it is a nested object and iterate over its properties
       for (const [nestedKey, nestedValue] of Object.entries(value)) {
+        // Skip jika nilainya undefined atau null (misalnya taxCard yang kosong)
+        // if (nestedValue === undefined || nestedValue === null) {
+        //   formData.append(`${nestedKey}`, null)
+        // };
+
         if (nestedValue instanceof File) {
           // const uniqueNestedFileName = `${key}.${nestedKey}_${Date.now()}_${
           //   nestedValue.name
@@ -80,7 +94,8 @@ export const postKaryawanWithFile = async (data: Employee) => {
           formData.append(`${nestedKey}`, nestedValue, nestedValue.name);
         } else {
           // If it's not a file, append as a string
-          formData.append(`${nestedKey}`, String(nestedValue));
+          // formData.append(`${nestedKey}`, String(nestedValue));
+          continue;
         }
       }
     } else {
@@ -176,5 +191,7 @@ export const deleteData = async (id: string) => {
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");
   }
+
+  mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
   return response.json();
 };

@@ -6,7 +6,7 @@ const DocumentCard: React.FC<{
   altText: string;
   label: string;
 }> = ({ imageSrc, altText, label }) => (
-  <div className="flex flex-col items-center h-[250px]">
+  <div className="flex flex-col items-center h-auto">
     <div className="flex flex-grow items-center justify-center">
       <a href={imageSrc} target="_blank" rel="noopener noreferrer">
         <Image
