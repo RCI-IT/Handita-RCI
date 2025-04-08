@@ -18,6 +18,8 @@ import Link from "next/link";
 import { TbEye } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
+const api = process.env.NEXT_PUBLIC_API_BACKEND
+
 export default function DaftarKaryawan() {
   const { handleDelete, isDeleting } = useDeleteEmployee();
   const { data, error, isLoading, isNotFound } = useKaryawanData();
@@ -48,7 +50,7 @@ export default function DaftarKaryawan() {
             {typeof ctx.getValue() === "string" && ctx.getValue() !== "" ? (
               <Image
                 src={`${
-                  process.env.NEXT_PUBLIC_API_BACKEND
+                  api
                 }/images/${ctx.getValue()}`}
                 alt={
                   typeof ctx.row.original.image === "string"
@@ -112,7 +114,7 @@ export default function DaftarKaryawan() {
 
   return (
     <div className="w-full pt-8 pr-6">
-      {isDeleting && <LoadingOffPage />}
+      {isDeleting == true && <LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">
           Manajemen Karyawan

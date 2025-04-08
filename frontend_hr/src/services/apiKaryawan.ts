@@ -5,6 +5,10 @@ import { Employee } from "@/types/daftarKaryawan";
 interface ErrorResponse {
   message: string;
 }
+const apiURL = process.env.NEXT_PUBLIC_API_BACKEND ||
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:4000'
+    : 'https://192.168.110.253:4000');
 
 // Fungsi fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -12,7 +16,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 // Custom hook untuk mengambil data karyawan
 export const useKaryawanData = () => {
   const { data, error } = useSWR<Employee[] | ErrorResponse>(
-    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees`,
+    `${apiURL}/api/employees`,
     fetcher
   );
   const isNotFound =
@@ -28,7 +32,7 @@ export const useKaryawanData = () => {
 
 export const useKaryawanDataDetail = (id: string) => {
   const { data, error } = useSWR<Employee | ErrorResponse>(
-    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
+    `${apiURL}/api/employees/${id}`,
     fetcher
   );
 
@@ -107,7 +111,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
   console.log(formData);
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`,
+      `${apiURL}/api/employees/`,
       {
         method: "POST",
         // headers: {
@@ -118,7 +122,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
       }
     );
 
-    mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
+    mutate(`${apiURL}/api/employees/`);
     console.log("Data berhasil ditambah");
     return response.status;
   } catch (error) {
@@ -162,13 +166,13 @@ export const editDataWithFile = async (data: Employee, id: string) => {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
+      `${apiURL}/api/employees/${id}`,
       {
         method: "PUT",
         body: formData,
       }
     );
-    mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
+    mutate(`${apiURL}/api/employees/`);
     console.log("Data berhasil diperbaharui");
     return response;
   } catch (error) {
@@ -179,7 +183,7 @@ export const editDataWithFile = async (data: Employee, id: string) => {
 
 export const deleteData = async (id: string) => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/${id}`,
+    `${apiURL}/api/employees/${id}`,
     {
       method: "DELETE",
       headers: {
@@ -191,7 +195,5 @@ export const deleteData = async (id: string) => {
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");
   }
-
-  mutate(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees/`);
   return response.json();
 };

@@ -16,10 +16,10 @@ const PORT: any = process.env.PORT;
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: ["http://localhost:3000", '*'], // Domain frontend
+  origin: '*', // Domain frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"], // Tambahkan header yang diperlukan
-  credentials: true, // Jika menggunakan cookie
+  // credentials: true, // Jika menggunakan cookie
 };
 
 
@@ -63,6 +63,6 @@ app.use((err: any, _req: Request, res: Response) => {
 });
 
 // Server Setup
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log("Server running on http://localhost:4000");
 });

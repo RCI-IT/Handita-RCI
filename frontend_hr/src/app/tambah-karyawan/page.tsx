@@ -102,11 +102,11 @@ export default function TambahKaryawan() {
         {/* ---------------- Form Tambah Karyawan ---------------- */}
         From Tambah Karyawan
         {/* Island Pembagian 4 Steps */}
-        <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between md:space-x-2">
+        <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white p-6 items-center flex justify-between 2xl:space-x-3 md:space-x-2">
           {steps.map((label, index) => (
             <Fragment key={index}>
               <div
-                className={`flex items-center 2xl:space-x-3  md:space-x-6 ${
+                className={`2xl:w-56 flex items-center justify-center 2xl:space-x-4 md:space-x-3 ${
                   step + 1 > index ? "text-[#252525]" : "text-slate-200"
                 }`}
               >
@@ -120,7 +120,7 @@ export default function TambahKaryawan() {
                 </p>
               </div>
               <div
-                className={`w-56 md:w-32 h-[2px] bg-slate-400 rounded-lg ${
+                className={`2xl:w-52 md:w-32 h-[2px] bg-slate-400 rounded-lg ${
                   index === steps.length - 1 ? "hidden" : ""
                 }`}
               />
@@ -147,20 +147,6 @@ export default function TambahKaryawan() {
                       <div className="">
                         {field.value && field.value instanceof File ? (
                           <>
-                            {/* <a
-                              href={URL.createObjectURL(field.value)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
-                            >
-                              <p>
-                                {field.value
-                                  ? field.value.name.length <= 20
-                                    ? field.value.name
-                                    : field.value.name.slice(0, 20) + "..."
-                                  : ""}
-                              </p>
-                            </a> */}
                             <Image
                               src={URL.createObjectURL(field.value)}
                               alt="Profile Picture"
@@ -170,7 +156,7 @@ export default function TambahKaryawan() {
                             />
                           </>
                         ) : (
-                          <div className="relative w-28 h-28 sm:w-40 sm:h-40 lg:w-30 lg:h-30 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
+                          <div className="relative w-28 h-28 sm:w-40 sm:h-40 lg:w-30 lg:h-30 rounded-full bg-gray-100 dark:bg-gray-600">
                             <svg
                               className="absolute w-32 h-32 lg:w-48 lg:h-48 text-gray-400 -left-2 lg:-left-4"
                               fill="currentColor"

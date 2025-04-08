@@ -9,6 +9,8 @@ import DocumentCard from "./documentCard";
 import Link from "next/link";
 import { TbEdit } from "react-icons/tb";
 
+const apiURL = process.env.NEXT_PUBLIC_API_BACKEND || 'http://192.168.110.253:4000'
+
 export default function DetailKaryawan() {
   const params = useParams(); // Retrieve the dynamic parameters
 
@@ -72,7 +74,7 @@ export default function DetailKaryawan() {
           <div className="flex-1 flex justify-start">
             <div className="w-40 h-40 relative">
               <Image
-                src={`${process.env.NEXT_PUBLIC_API_BACKEND}/images/${data.image}`}
+                src={`${apiURL}/images/${data.image}`}
                 alt="Photo Profile"
                 width={500}
                 height={500}
@@ -139,7 +141,7 @@ export default function DetailKaryawan() {
         {/* Garis Pembatas */}
         <div className="w-auto border-t-2 border-gray-300"></div>
 
-        <div className="w-full overflow-y-auto flex space-x-3 py-4 px-4">
+        <div className="w-full flex space-x-3 py-4 px-4">
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
             <p>{data.education}</p>
@@ -154,7 +156,7 @@ export default function DetailKaryawan() {
         {/* Garis Pembatas */}
         <div className="w-auto border-t-2 border-gray-300"></div>
 
-        <div className="w-full overflow-y-auto flex space-x-3 py-4 px-4">
+        <div className="w-full flex space-x-3 py-4 px-4">
           <div className="border-2 border-blue-700 w-5 h-5 rounded-full"></div>
           <div>
             <p>{data.position}</p>
@@ -172,10 +174,10 @@ export default function DetailKaryawan() {
         {/* Garis Pembatas */}
         <div className="w-auto border-t-2 border-gray-300"></div>
 
-        <div className="w-full overflow-y-auto flex justify-evenly py-4 px-4">
+        <div className="w-full flex justify-evenly py-4 px-4">
           {/* KTP */}
           <DocumentCard
-            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${data.document.idCard}`}
+            imageSrc={`${apiURL}/ktp/${data.document.idCard}`}
             altText="KTP"
             label="KTP"
           />
@@ -185,7 +187,7 @@ export default function DetailKaryawan() {
 
           {/* Kartu Keluarga */}
           <DocumentCard
-            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/kartukeluarga/${data.document.familyCard}`}
+            imageSrc={`${apiURL}/kartukeluarga/${data.document.familyCard}`}
             altText="Kartu Keluarga"
             label="Kartu Keluarga"
           />
@@ -197,7 +199,7 @@ export default function DetailKaryawan() {
             <>
               {/* NPWP */}
               <DocumentCard
-                imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${data.document.taxCard}`}
+                imageSrc={`${apiURL}/npwp/${data.document.taxCard}`}
                 altText="NPWP"
                 label="NPWP"
               />
@@ -209,7 +211,7 @@ export default function DetailKaryawan() {
 
           {/* Ijazah Terakhir */}
           <DocumentCard
-            imageSrc={`${process.env.NEXT_PUBLIC_API_BACKEND}/ijazah/${data.document.diploma}`}
+            imageSrc={`${apiURL}/ijazah/${data.document.diploma}`}
             altText="Ijazah Terakhir"
             label="Ijazah Terakhir"
           />

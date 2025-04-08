@@ -18,6 +18,8 @@ import { inputNumberOnly } from "@/function/numberOnly";
 import { useParams } from "next/navigation";
 import IsNotFound from "@/app/[idKaryawan]/notFound";
 
+const apiURL = `${process.env.NEXT_PUBLIC_API_BACKEND}`
+
 export default function Edit() {
   const params = useParams<{ idKaryawan: string }>();
   const { idKaryawan } = params;
@@ -123,7 +125,7 @@ export default function Edit() {
 
   return (
     <div className="w-full pt-8 pr-6">
-      {loadSubmit && <LoadingOffPage />}
+      {<LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Karyawan</p>
 
@@ -191,7 +193,7 @@ export default function Edit() {
                           </>
                         ) : (
                           <Image
-                            src={`${process.env.NEXT_PUBLIC_API_BACKEND}/images/${employeeData.image}`}
+                            src={`${apiURL}/images/${employeeData.image}`}
                             alt="Profile Picture"
                             width={400}
                             height={400}
@@ -873,7 +875,7 @@ export default function Edit() {
                           ) : (
                             <>
                               <a
-                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ktp/${employeeData.document.idCard}`}
+                                href={`${apiURL}/ktp/${employeeData.document.idCard}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
@@ -968,7 +970,7 @@ export default function Edit() {
                           ) : (
                             <>
                               <a
-                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/npwp/${employeeData.document.idCard}`}
+                                href={`${apiURL}/npwp/${employeeData.document.idCard}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
@@ -1064,7 +1066,7 @@ export default function Edit() {
                           ) : (
                             <>
                               <a
-                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/kartukeluarga/${employeeData.document.familyCard}`}
+                                href={`${apiURL}/kartukeluarga/${employeeData.document.familyCard}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
@@ -1161,7 +1163,7 @@ export default function Edit() {
                           ) : (
                             <>
                               <a
-                                href={`${process.env.NEXT_PUBLIC_API_BACKEND}/ijazah/${employeeData.document.diploma}`}
+                                href={`${apiURL}/ijazah/${employeeData.document.diploma}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-52 text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
