@@ -4,7 +4,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { LoadingOffPage } from "@/handle/loading";
 
 const inter = Poppins({
   subsets: ["latin"],
@@ -43,12 +42,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`flex relative bg-gray-100 min-h-screen ${inter.className}`}
+        className={`relative bg-gray-100 min-h-screen ${inter.className}`}
       >
         {/* <Toaster />
         <Header />
         <Sidebar /> */}
-        <LoadingOffPage />
         {children}
       </body>
     </html>

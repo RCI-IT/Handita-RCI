@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 export function LoadingPage() {
   return (
     <div className="flex items-center justify-center w-full transition-all duration-300 font-mono text-2xl space-x-4">
@@ -10,8 +12,15 @@ export function LoadingPage() {
 }
 
 export function LoadingOffPage() {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) return null;
   return (
-    <div className="fixed inset-0 bg-red-500 bg-opacity-50 flex justify-center items-center z-[9999]">
+    <div className="fixed inset-0 z-[9999] w-full h-full bg-orange-500/50 flex justify-center items-center">
       <svg
         aria-hidden="true"
         role="status"
@@ -29,7 +38,8 @@ export function LoadingOffPage() {
           fill="currentColor"
         />
       </svg>
-      <span className="text-white">Loading...</span>
+      <span className="text-black">Loading...</span>
+      <p className="text-black">jfdgjdflj</p>
     </div>
   );
 }
