@@ -24,7 +24,6 @@ import {
   MdOutlineArrowDropDown,
   MdOutlineArrowDropUp,
 } from "react-icons/md";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 
 // const defaultColumnSizing = {

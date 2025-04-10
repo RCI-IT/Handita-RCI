@@ -11,7 +11,7 @@ export default function Header() {
   // Sembunyikan header di halaman login
   if (pathname === "/login" || pathname === "/signin") return null;
   return (
-    <div className="absolute top-0 right-5 flex items-center justify-between pt-[2.5vh]">
+    <div className="absolute top-0 right-5 flex items-center justify-between pt-5">
       <div className="flex items-center space-x-4 ">
         <div className="p-3 rounded-xl z-50 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
           <IoIosNotificationsOutline className="text-2xl" />

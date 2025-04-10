@@ -124,7 +124,7 @@ export default function Edit() {
   if (notFound) return <IsNotFound />;
 
   return (
-    <>
+    <div>
       {<LoadingOffPage />}
       <div className="w-full pt-8 pr-6">
         <nav>
@@ -1312,6 +1312,6 @@ export default function Edit() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
