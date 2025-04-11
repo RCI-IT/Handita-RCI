@@ -5,13 +5,34 @@ import CardHead from "@/components/card-head";
 import Table from "@/components/tabel";
 import Link from "next/link";
 import Image from "next/image";
+import { ColumnDef } from "@tanstack/react-table";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock, FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { TbEye } from "react-icons/tb";
+import { Employee } from "@/types/employeeTypes";
+import { LoadingPage } from "@/handler/loading";
+import IsNotFound from "@/handler/isNotFound";
 
 export default function EmployeeList() {
+    const { handleDelete, isDeleting } = useDeleteEmployee();
+    const { data, error, isLoading, isNotFound } = useKaryawanData();
+  
+    if (isLoading) return <LoadingPage />;
+    if (error) return <IsNotFound />;
+    const isError = isNotFound || "message" in data;
+  
+    const safeData = Array.isArray(data) ? data : [];
+  
+    const recentData = safeData.filter((item: Employee) => {
+      const today = new Date();
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(today.getMonth() - 1);
+      const createdDate = new Date(item.hireDate);
+      return createdDate >= oneMonthAgo && createdDate <= today;
+    });
+    
     const columns: ColumnDef<Employee>[] = [
         {
           id: "image",
