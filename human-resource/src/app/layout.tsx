@@ -54,10 +54,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`flex min-w-screen bg-gray-100 ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`flex min-w-screen min-h-screen box-border p-5 ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Sidebar />
-        <div className="flex-1 py-5 px-5">
+        <div className="flex flex-1 ml-5">
           <Header />
           {children}
         </div>

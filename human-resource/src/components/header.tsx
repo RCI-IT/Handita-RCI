@@ -12,11 +12,11 @@ export default function Header() {
   if (pathname === "/login" || pathname === "/signin") return null;
   return (
     <div className="absolute top-0 right-5 flex items-center justify-between pt-5">
-      <div className="flex items-center space-x-4 ">
-        <div className="p-3 rounded-xl z-50 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
+      <div className="grid grid-cols-[48px_1fr] gap-x-4">
+        <div className="flex items-center justify-center rounded-xl z-50 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
           <IoIosNotificationsOutline className="text-2xl" />
         </div>
-        <div className="p-3 rounded-xl z-50 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] flex items-center space-x-2 bg-white w-[184px] h-14 overflow-hidden">
+        <div className="p-2 rounded-xl z-20 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] flex items-center space-x-2 bg-white overflow-hidden">
           <div className="relative rounded-full w-8 h-8 bg-blue-500">
             <Image
               src={logo1}
