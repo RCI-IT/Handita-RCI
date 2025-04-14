@@ -12,8 +12,12 @@ import { HiUsers } from "react-icons/hi";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { TbEye } from "react-icons/tb";
 import { Employee } from "@/types/employeeTypes";
-import { LoadingPage } from "@/handler/loading";
+import { LoadingOffPage, LoadingPage } from "@/handler/loading";
 import IsNotFound from "@/handler/isNotFound";
+import { useKaryawanData } from "@/services/apiKaryawan";
+import { useDeleteEmployee } from "@/hooks/useDeleteEmployee";
+
+const apiURL = process.env.NEXT_PUBLIC_API_BACKEND
 
 export default function EmployeeList() {
     const { handleDelete, isDeleting } = useDeleteEmployee();
@@ -45,7 +49,7 @@ export default function EmployeeList() {
                 {typeof ctx.getValue() === "string" && ctx.getValue() !== "" ? (
                   <Image
                     src={`${
-                      api
+                      apiURL
                     }/images/${ctx.getValue()}`}
                     alt={
                       typeof ctx.row.original.image === "string"
@@ -108,7 +112,8 @@ export default function EmployeeList() {
       ];
     
   return (
-    <>
+    <div className = "w-full">
+      {isDeleting == true && <LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">
           Manajemen Karyawan
@@ -157,6 +162,7 @@ export default function EmployeeList() {
           judul={`Daftar Karyawan`}
           tambahLink={"/tambah-karyawan"}
         />
-    </>
+    </div>
   );
 }
+

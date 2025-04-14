@@ -20,7 +20,7 @@ export function LoadingOffPage() {
 
   if (!hydrated) return null;
   return (
-    <div className="fixed inset-0 z-[9999] w-full h-full bg-orange-500/50 flex justify-center items-center">
+    <div className="fixed inset-0 z-[9999] w-full h-full bg-blue-500/50 flex justify-center items-center">
       <svg
         aria-hidden="true"
         role="status"
@@ -38,8 +38,7 @@ export function LoadingOffPage() {
           fill="currentColor"
         />
       </svg>
-      <span className="text-black">Loading...</span>
-      <p className="text-black">jfdgjdflj</p>
+      <span className="text-white">Loading...</span>
     </div>
   );
 }

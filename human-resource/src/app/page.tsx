@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LoadingOffPage } from "./load";
+import { LoadingOffPage } from "@/handler/loading";
 
 export default function Home() {
   return (

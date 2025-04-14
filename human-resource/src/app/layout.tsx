@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// const inter = Poppins({
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
 //   subsets: ["latin"],
-//   weight: "400",
 // });
+
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+
+const inter = Poppins({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export const metadata: Metadata = {
   title: "PT Reka Cipta Inovasi",
@@ -54,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`flex min-w-screen min-h-screen box-border p-5 ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`flex min-w-screen min-h-screen box-border p-5 ${inter.className}`}
       >
         <Sidebar />
         <div className="flex flex-1 ml-5">

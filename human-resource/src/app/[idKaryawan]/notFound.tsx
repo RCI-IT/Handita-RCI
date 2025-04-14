@@ -1,7 +1,19 @@
 "use client";
+
+import { useState } from "react";
+
 export default function IsNotFound() {
+  const [loading, setLoading] = useState(false);
+  const handleClick = () => {
+    setLoading(true);
+
+    // Simulate a loading delay (e.g., API request, navigation)
+    setTimeout(() => {
+      window.location.href = "../daftar-karyawan"; // Or use Next.js router to navigate to a page
+    }, 2000); // Adjust this time for your needs
+  };
   return (
-    <div className="flex flex-col bg-grey-100 w-full h-full justify-center items-center">
+    <div className="flex flex-col w-screen bg-gray-100 h-screen justify-center items-center">
       <center className="mt-24">
         <svg
           className="emoji-404 "
@@ -101,6 +113,20 @@ export default function IsNotFound() {
             {/* Sorry, We couldn't find what you are looking for! */}
           </span>
         </div>
+      </center>
+      <center className="mt-6">
+        <button
+          onClick={handleClick} // Trigger loading and action on click
+          className={`text-gray-500 font-mono text-xl bg-gray-200 p-3 rounded-md hover:shadow-md flex items-center justify-center transition-all duration-300 ${
+            loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'  // Change cursor and opacity when loading
+          }`}
+        >
+          {loading ? (
+            <span className="animate-spin ">⏳</span> // Show a loading spinner (or any loading icon)
+          ) : (
+            "Go back"
+          )}
+        </button>
       </center>
     </div>
   );
