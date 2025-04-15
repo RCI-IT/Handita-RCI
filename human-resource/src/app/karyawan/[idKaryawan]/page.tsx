@@ -55,7 +55,7 @@ export default function DetailKaryawan() {
         <div className="w-full h-auto flex justify-between items-center py-4 px-4">
           <h3 className="text-xl font-semibold space-y-4">Profil Karyawan</h3>
           <Link
-            href={`/edit/${idKaryawan}`}
+            href={`/karyawan/${idKaryawan}/edit`}
             className="flex space-x-2 hover:text-blue-600 group"
           >
             <TbEdit

@@ -99,7 +99,7 @@ export default function EmployeeList() {
             if (!idKaryawan) return null; // Menghindari jika idKaryawan tidak ada
             return (
               <div className="flex justify-center place-items-center space-x-5">
-                <Link href={`/${idKaryawan}`}>
+                <Link href={`/karyawan/${idKaryawan}`}>
                   <TbEye className={`text-2xl text-blue-600`} />
                 </Link>
                 <button onClick={(e) => handleDelete(idKaryawan, e)}>

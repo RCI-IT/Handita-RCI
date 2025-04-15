@@ -1,7 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/breadcrumb";
 import { LoadingOffPage, LoadingPage } from "@/handler/loading";
-import { Employee } from "@/types/daftarKaryawan";
 import {
   editDataWithFile,
   useKaryawanData,
@@ -11,12 +10,7 @@ import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import Image from "next/image";
-import { checkDuplicate } from "@/function/check-unique";
-import { validateFile, validations } from "@/function/fileValidation";
-import { FormatCurrency, HandleCurrencyChange } from "@/function/setCurrency";
-import { inputNumberOnly } from "@/function/numberOnly";
 import { useParams } from "next/navigation";
-import IsNotFound from "@/app/[idKaryawan]/notFound";
 
 const apiURL = `${process.env.NEXT_PUBLIC_API_BACKEND}`;
 
