@@ -1,5 +1,5 @@
 import { apiURL } from '../../services/apiURL';
-import { getTokenWithExpiry } from '../../utils/localStorage';
+import { getTokenWithExpiry } from '../../services/localStorage';
 
 export const getDepartemenData = async () => {
   const token = getTokenWithExpiry();

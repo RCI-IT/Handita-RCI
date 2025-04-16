@@ -1,5 +1,7 @@
+'use client'
+
 // Simpan data biasa
-export const setItem = (key: string, value: any) => {
+export const setItem = <T>(key: string, value: T): void => {
     localStorage.setItem(key, JSON.stringify(value));
   };
   
@@ -10,7 +12,7 @@ export const setItem = (key: string, value: any) => {
   };
   
   // Simpan dengan expired
-  export const setWithExpiry = (key: string, value: any, ttl: number) => {
+  export const setWithExpiry = <T>(key: string, value: T, ttl: number): void => {
     const now = new Date();
     const item = {
       value,

@@ -16,6 +16,9 @@ export default {
         blueBase: '#1649AC',
         blueBg: "var(--blueBg)"
       },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+      },
     },
   },
   plugins: [],

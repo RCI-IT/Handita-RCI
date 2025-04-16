@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { getTokenWithExpiry } from '../utils/localStorage';
+import { getTokenWithExpiry } from '../services/localStorage';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const token = getTokenWithExpiry();

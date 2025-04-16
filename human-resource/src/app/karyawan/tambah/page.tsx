@@ -8,6 +8,9 @@ import Image from "next/image";
 import { postKaryawanWithFile, useKaryawanData } from "@/services/apiKaryawan";
 import { Employee } from "@/types/employeeTypes";
 import { LoadingOffPage } from "@/handler/loading";
+import { checkDuplicate } from "@/utils/checkDuplicate";
+import { inputNumberOnly } from "@/utils/numberOnly";
+import { FormatCurrency, HandleCurrencyChange } from "@/utils/setCurrency";
 
 export default function TambahKaryawan() {
   const steps = ["Informasi Pribadi", "Pendidikan", "Jabatan", "Berkas"];
@@ -51,7 +54,7 @@ export default function TambahKaryawan() {
       console.log("Data yang disubmit: ", data);
       await postKaryawanWithFile(data);
       setLoadSubmit(false);
-      alert("Data yang disubmit: ");
+      alert("Data sudah di submit");
       // setTimeout(() => {
       //   window.location.href = "/daftar-karyawan";
       // }, 3000);
@@ -71,21 +74,22 @@ export default function TambahKaryawan() {
   if (isNotFound) {
     return "No employee data available";
   }
-  const existingEmployeeNumbers = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.employeeNumber)
-    : [];
-  const existingIdCardNumber = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.idCardNumber)
-    : [];
-  const existingEmail = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.email)
-    : [];
-  const existingPhone = Array.isArray(data)
-    ? data.map((karyawan) => karyawan.phone)
-    : [];
+  const existingEmployeeNumbers: string[] = [];
+  const existingIdCardNumbers: string[] = [];
+  const existingEmails: string[] = [];
+  const existingPhones: string[] = [];
+  
+  if (Array.isArray(data)) {
+    data.forEach((karyawan) => {
+      existingEmployeeNumbers.push(karyawan.employeeNumber);
+      existingIdCardNumbers.push(karyawan.idCardNumber);
+      existingEmails.push(karyawan.email);
+      existingPhones.push(karyawan.phone);
+    });
+  }
 
   return (
-    <div className="min-w-screen pt-8 pr-6">
+    <div className="w-full">
       {loadSubmit && <LoadingOffPage />}
 
       <nav>
@@ -153,7 +157,7 @@ export default function TambahKaryawan() {
                             />
                           </>
                         ) : (
-                          <div className="relative w-28 h-28 sm:w-40 sm:h-40 lg:w-30 lg:h-30 rounded-full bg-gray-100 dark:bg-gray-600">
+                          <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-full bg-gray-100 dark:bg-gray-600 overflow-hidden">
                             <svg
                               className="absolute w-32 h-32 lg:w-48 lg:h-48 text-gray-400 -left-2 lg:-left-4"
                               fill="currentColor"
@@ -280,7 +284,7 @@ export default function TambahKaryawan() {
                           />
                         )}
                       />
-                      <span className="text-errorFormColor text-xs">
+                      <span className="text-blueBase text-xs">
                         {errors.employeeNumber && (
                           <p>{errors.employeeNumber.message}</p>
                         )}
@@ -288,7 +292,7 @@ export default function TambahKaryawan() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
-                    <p>Nama</p>
+                    <p className="text-blueBase">Nama</p>
                     <div className="w-3/4">
                       <Controller
                         name="fullName"
@@ -336,7 +340,7 @@ export default function TambahKaryawan() {
                             // Validasi perulangan untuk cek duplikasi
                             const isDuplicate = checkDuplicate(
                               cleanedValue,
-                              existingIdCardNumber
+                              existingIdCardNumbers
                             );
                             if (isDuplicate) {
                               return "Nomor pegawai sudah terdaftar";
@@ -546,7 +550,7 @@ export default function TambahKaryawan() {
 
                             const uniqueEmail = checkDuplicate(
                               value,
-                              existingEmail
+                              existingEmails
                             );
 
                             if (uniqueEmail) {
@@ -588,7 +592,7 @@ export default function TambahKaryawan() {
                               return "Format nomor kontak salah";
                             const uniquePhone = checkDuplicate(
                               value,
-                              existingPhone
+                              existingPhones
                             );
                             if (uniquePhone) {
                               return "Nomor kontak sudah terdaftar";

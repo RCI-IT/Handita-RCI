@@ -1,23 +1,69 @@
+"use client";
+
 import useSWR, { mutate } from "swr";
-import { Employee } from "@/types/employeeTypes"
+import { Employee } from "@/types/employeeTypes";
+import { getWithExpiry, setWithExpiry } from "./localStorage";
+import { useEffect, useState } from "react";
 
 // Interface untuk struktur error response
 interface ErrorResponse {
   message: string;
 }
-const apiURL = process.env.NEXT_PUBLIC_API_BACKEND 
+const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
+const STORAGE_KEY = "employees";
+const TTL = 3600000;
 
 // Fungsi fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Digunakan jika mengambil data dengan token yang didapat dari auth
+
+// const fetcherWithToken = async <T>(url: string): Promise<T> => {
+//   const token = getTokenWithExpiry();
+//   if (!token) throw new Error('Unauthorized');
+
+//   const res = await fetch(url, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+
+//   if (!res.ok) {
+//     const errorBody = await res.json();
+//     const error = new Error(errorBody.message || 'Error') as Error & { status?: number };
+//     error.status = res.status;
+//     throw error;
+//   }
+
+//   return res.json();
+// };
+
 // Custom hook untuk mengambil data karyawan
 export const useKaryawanData = () => {
+  const [fallback, setFallback] = useState<Employee[] | null>(null);
+  const [shouldFetch, setShouldFetch] = useState(true);
+
+  useEffect(() => {
+    const cached = getWithExpiry(STORAGE_KEY);
+    if (cached) {
+      setFallback(cached);
+      setShouldFetch(false); // ❗ Jangan fetch kalau sudah ada cache
+    }
+  }, []);
+
   const { data, error } = useSWR<Employee[] | ErrorResponse>(
-    `${apiURL}/api/employees`,
-    fetcher
+    shouldFetch ? `${apiURL}/api/employees` : null,
+    fetcher,
+    { fallbackData: fallback || undefined }
   );
   const isNotFound =
     data && (data as ErrorResponse).message?.includes("not found");
+
+  useEffect(() => {
+    if (data && !("message" in data)) {
+      setWithExpiry(STORAGE_KEY, data, TTL);
+    }
+  }, [data]);
 
   return {
     data: data || [],
@@ -107,17 +153,14 @@ export const postKaryawanWithFile = async (data: Employee) => {
 
   console.log(formData);
   try {
-    const response = await fetch(
-      `${apiURL}/api/employees/`,
-      {
-        method: "POST",
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        //   // Add any additional headers if needed
-        // },
-        body: formData,
-      }
-    );
+    const response = await fetch(`${apiURL}/api/employees/`, {
+      method: "POST",
+      // headers: {
+      //   "Content-Type": "multipart/form-data",
+      //   // Add any additional headers if needed
+      // },
+      body: formData,
+    });
 
     mutate(`${apiURL}/api/employees/`);
     console.log("Data berhasil ditambah");
@@ -162,13 +205,10 @@ export const editDataWithFile = async (data: Employee, id: string) => {
   console.log(formData);
 
   try {
-    const response = await fetch(
-      `${apiURL}/api/employees/${id}`,
-      {
-        method: "PUT",
-        body: formData,
-      }
-    );
+    const response = await fetch(`${apiURL}/api/employees/${id}`, {
+      method: "PUT",
+      body: formData,
+    });
     mutate(`${apiURL}/api/employees/`);
     console.log("Data berhasil diperbaharui");
     return response;
@@ -179,15 +219,12 @@ export const editDataWithFile = async (data: Employee, id: string) => {
 };
 
 export const deleteData = async (id: string) => {
-  const response = await fetch(
-    `${apiURL}/api/employees/${id}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const response = await fetch(`${apiURL}/api/employees/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");

@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { login } from '../authService';
-import { setTokenWithExpiry } from '../../../utils/localStorage';
+import { setTokenWithExpiry } from '../../../services/localStorage';
 
 export const useAuth = () => {
-  const navigate = useNavigate();
+  const navigate = usePathname();
   const [error, setError] = useState('');
 
   const handleLogin = async (username: string, password: string) => {

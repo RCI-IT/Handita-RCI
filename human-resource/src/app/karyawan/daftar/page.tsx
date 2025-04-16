@@ -124,8 +124,7 @@ export default function EmployeeList() {
         <CardHead
           Icon={HiUsers}
           title={""}
-          jumlah= {0} 
-        //   {isError ? 0 : data.length}
+          jumlah= {isError ? 0 : data.length}
           perubahan={"Total Karyawan"}
           itemClass={"items-center"}
           logoClass={"bg-blue-200 text-blue-900 text-4xl p-2"}
@@ -133,8 +132,7 @@ export default function EmployeeList() {
         <CardHead
           Icon={FaUserPlus}
           title={""}
-          jumlah= {0}
-        //   {recentData.length}
+          jumlah= {recentData.length}
           perubahan={"Karyawan Baru"}
           itemClass={"items-center"}
           logoClass={"bg-green-200 text-green-900 text-4xl p-2"}
@@ -160,7 +158,7 @@ export default function EmployeeList() {
           objectData={isError ? [] : data}
           columns={columns}
           judul={`Daftar Karyawan`}
-          tambahLink={"/tambah-karyawan"}
+          tambahLink={"/karyawan/tambah"}
         />
     </div>
   );

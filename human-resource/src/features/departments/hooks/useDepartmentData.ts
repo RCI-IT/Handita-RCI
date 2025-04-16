@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useEffect } from 'react';
 import { getDepartemenData } from '../departemenService';
-import { getWithExpiry, setWithExpiry } from '../../../utils/localStorage';
+import { getWithExpiry, setWithExpiry } from '../../../services/localStorage';
 
 const STORAGE_KEY = 'departemen';
 const TTL = 3600000;

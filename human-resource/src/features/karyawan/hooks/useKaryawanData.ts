@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { useEffect } from 'react';
 import { fetcherWithToken } from '../../../services/fetcher';
 import { apiURL } from '../../../services/apiURL';
-import { setWithExpiry, getWithExpiry, getTokenWithExpiry } from '../../../utils/localStorage';
+import { setWithExpiry, getWithExpiry, getTokenWithExpiry } from '../../../services/localStorage';
 import { Employee, ErrorResponse } from '../../../types';
 
 const STORAGE_KEY = 'employees';
