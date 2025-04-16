@@ -56,6 +56,7 @@ export const useKaryawanData = () => {
     fetcher,
     { fallbackData: fallback || undefined }
   );
+  
   const isNotFound =
     data && (data as ErrorResponse).message?.includes("not found");
 
