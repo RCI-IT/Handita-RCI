@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next && rm -rf node_modules && rm package-lock.json",
+    "postinstall": "tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.2",

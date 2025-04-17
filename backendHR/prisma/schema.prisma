@@ -24,13 +24,21 @@ model Employees {
   school         String
   major          String
   position       String
-  status         String
+  status         Status                 @default(ACTIVE)
+  leaveDate      DateTime?              @db.Date // untuk cuti
+  resignDate     DateTime?              @db.Date // untuk berhenti
   salary         Int                    @default(0)
   hireDate       DateTime?              @db.Date
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
   document       EmployeeDocuments?
   sertificate    EmployeeSertification?
+}
+
+enum Status {
+  ACTIVE
+  ONLEAVE
+  RESIGN
 }
 
 model EmployeeDocuments {

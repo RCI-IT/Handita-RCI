@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import EmployeeValidation from "../validations/EmployeeValidation";
-import unlinkAsync from "../config/deleteImageCloudinary";
+// import unlinkAsync from "../config/deleteImageCloudinary";
 import {
   cleanupUploadedFiles,
   getFilesToDelete,
@@ -90,6 +90,29 @@ const EmployeeController = {
         return handleUnprocessableEntityResponse(res, error.details[0].message);
       }
 
+      const { status, leaveDate, resignDate } = req.body;
+
+      if (status === "ACTIVE" && (leaveDate || resignDate)) {
+        return res.status(400).json({
+          error:
+            "leaveDate dan resignDate hanya boleh diisi jika status bukan ACTIVE",
+        });
+      }
+
+      if (status === "ONLEAVE" && !leaveDate) {
+        return handleUnprocessableEntityResponse(
+          res,
+          "leaveDate tidak boleh null"
+        );
+      }
+
+      if (status === "RESIGN" && !resignDate) {
+        return handleUnprocessableEntityResponse(
+          res,
+          "resignDate tidak boleh null"
+        );
+      }
+
       const existingEmployee = await prisma.employees.findUnique({
         where: {
           employeeNumber: value.employeeNumber,
@@ -125,6 +148,9 @@ const EmployeeController = {
           newEmployee = await prisma.employees.create({
             data: {
               image: getFilenameOrDefault(image?.[0]),
+              // status,
+              // leaveDate: status !== status.ONLEAVE ? null : leaveDate,
+              // resignDate: status !== status.RESIGN ? null : resignDate,
               ...value,
               document: {
                 create: {

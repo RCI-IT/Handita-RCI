@@ -19,6 +19,8 @@ const EmployeeValidation = Joi.object({
     salary: Joi.number().required(),
     status: Joi.string(),
     hireDate: Joi.date().iso(),
+    leaveDate: Joi.date().iso(),
+    resignDate: Joi.date().iso(),
     document: {
         idCard: Joi.string(),
         taxCard: Joi.string().allow(null),
