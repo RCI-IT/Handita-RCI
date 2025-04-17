@@ -41,18 +41,16 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 // Custom hook untuk mengambil data karyawan
 export const useKaryawanData = () => {
   const [fallback, setFallback] = useState<Employee[] | null>(null);
-  const [shouldFetch, setShouldFetch] = useState(true);
 
   useEffect(() => {
     const cached = getWithExpiry(STORAGE_KEY);
     if (cached) {
       setFallback(cached);
-      setShouldFetch(false); // ❗ Jangan fetch kalau sudah ada cache
     }
   }, []);
 
   const { data, error } = useSWR<Employee[] | ErrorResponse>(
-    shouldFetch ? `${apiURL}/api/employees` : null,
+    `${apiURL}/api/employees`,
     fetcher,
     { fallbackData: fallback || undefined }
   );
@@ -168,7 +166,8 @@ export const postKaryawanWithFile = async (data: Employee) => {
     return response.status;
   } catch (error) {
     console.error("Error posting data:", error); // Log the error for debugging
-    throw new Error("Error posting data");
+    // throw new Error("Error posting data");
+    return (error)
   }
 };
 
@@ -230,5 +229,6 @@ export const deleteData = async (id: string) => {
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");
   }
+  mutate(`/karyawan/daftar`);
   return response.json();
 };

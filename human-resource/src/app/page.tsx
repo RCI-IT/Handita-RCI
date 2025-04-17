@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="w-full bg-amber-500 grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <LoadingOffPage/>
-      <div className="bg-green-500">Top Spacer</div>
+      <div className="bg-blueBase">Top Spacer</div>
       <main className="bg bg-red-500 flex flex-col gap-[32px]items-center sm:items-start">
         <Image
           className="dark:invert"

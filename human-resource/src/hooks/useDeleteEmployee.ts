@@ -22,7 +22,8 @@ export function useDeleteEmployee() {
     setIsDeleting(true);
     try {
       await deleteData(id);
-      // window.location.reload();
+      
+      window.location.reload();
     } catch (error) {
       console.error("Gagal menghapus karyawan:", error);
       alert("Terjadi kesalahan saat menghapus.");

@@ -45,7 +45,7 @@ export default function DetailKaryawan() {
   }
 
   return (
-    <div className="w-full pt-8 pb-6 pr-6 space-y-4">
+    <div className="w-full space-y-5">
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Detail Karyawan</p>
         <Breadcrumb />

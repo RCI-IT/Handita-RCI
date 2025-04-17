@@ -36,6 +36,8 @@ export type Employee = {
   salary: number;
   status: string;
   hireDate: string;
+  leaveDate: string;
+  resignDate: string;
   createdAt: string;
   updatedAt: string;
   document: Document;

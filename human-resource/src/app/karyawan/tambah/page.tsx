@@ -21,10 +21,13 @@ export default function TambahKaryawan() {
     handleSubmit,
     setError,
     trigger,
+    watch,
     formState: { errors },
   } = useForm<Employee>({
     mode: "onBlur",
   });
+
+  const status = watch("status");
 
   const handlePrevious = () => {
     setStep((prevStep) => prevStep - 1);
@@ -78,7 +81,7 @@ export default function TambahKaryawan() {
   const existingIdCardNumbers: string[] = [];
   const existingEmails: string[] = [];
   const existingPhones: string[] = [];
-  
+
   if (Array.isArray(data)) {
     data.forEach((karyawan) => {
       existingEmployeeNumbers.push(karyawan.employeeNumber);
@@ -276,6 +279,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="employeeNumber"
+                            maxLength={11}
                             onKeyDown={inputNumberOnly}
                             // onChange={(e) =>
                             //   field.onChange(formatEmployeeNumber(e.target.value))
@@ -284,7 +288,7 @@ export default function TambahKaryawan() {
                           />
                         )}
                       />
-                      <span className="text-blueBase text-xs">
+                      <span className="text-errorFormColor text-xs">
                         {errors.employeeNumber && (
                           <p>{errors.employeeNumber.message}</p>
                         )}
@@ -292,7 +296,7 @@ export default function TambahKaryawan() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
-                    <p className="text-blueBase">Nama</p>
+                    <p>Nama</p>
                     <div className="w-3/4">
                       <Controller
                         name="fullName"
@@ -363,6 +367,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="idCardNumber"
+                            maxLength={16}
                             onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
@@ -544,7 +549,8 @@ export default function TambahKaryawan() {
                         rules={{
                           required: "Email harus diisi",
                           validate: (value) => {
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.(com|id|org|co)$/;
+                            const emailRegex =
+                              /^[^\s@]+@[^\s@]+\.(com|id|org|co)$/;
                             if (!emailRegex.test(value))
                               return "Format email salah";
 
@@ -605,6 +611,7 @@ export default function TambahKaryawan() {
                           <input
                             {...field}
                             id="phone"
+                            maxLength={13}
                             onKeyDown={inputNumberOnly}
                             className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                           />
@@ -729,11 +736,15 @@ export default function TambahKaryawan() {
                       }}
                       defaultValue=""
                       render={({ field }) => (
-                        <input
+                        <select
                           {...field}
-                          id="status"
                           className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
-                        />
+                        >
+                          <option value="">Pilih Status</option>
+                          <option value="ACTIVE">Aktif</option>
+                          <option value="ONLEAVE">Cuti</option>
+                          <option value="RESIGN">Berhenti</option>
+                        </select>
                       )}
                     />
                     <span className="text-errorFormColor text-xs">
@@ -742,7 +753,7 @@ export default function TambahKaryawan() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
-                  <p>Tanggal Mulai</p>
+                  <p>Tanggal Mulai Bekerja</p>
                   <div className="w-3/4">
                     <Controller
                       name="hireDate"
@@ -784,6 +795,64 @@ export default function TambahKaryawan() {
                     </span>
                   </div>
                 </div>
+                {status !== "ACTIVE" && status !== "" && (
+                  <div className="flex items-center space-x-4 justify-between w-3/4 ">
+                    <p>Tanggal {status === "ONLEAVE" ? "Cuti" : "Berhenti"}</p>
+                    <div className="w-3/4">
+                      <Controller
+                        name={status === "ONLEAVE" ? "leaveDate" : "resignDate"}
+                        control={control}
+                        rules={{
+                          required: `Tanggal ${
+                            status === "ONLEAVE" ? "Cuti" : "Berhenti"
+                          } harus diisi`,
+                        }}
+                        defaultValue=""
+                        render={({ field }) => (
+                          <div className="relative max-w-sm">
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <svg
+                                className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                              </svg>
+                            </div>
+
+                            <input
+                              {...field}
+                              type="date" // Native date input
+                              onChange={(e) => {
+                                // Format the date as yyyy-MM-dd before submitting
+                                const formattedDate = e.target.value; // e.target.value will be in yyyy-MM-dd format
+                                field.onChange(formattedDate); // Set the value to React Hook Form
+                              }}
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                              placeholder="Select date"
+                            />
+                          </div>
+                        )}
+                      />
+                      {status === "ONLEAVE" ? (
+                        <span className="text-errorFormColor text-xs">
+                          {errors.leaveDate && (
+                            <p>{errors.leaveDate.message}</p>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-errorFormColor text-xs">
+                          {errors.resignDate && (
+                            <p>{errors.resignDate.message}</p>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center space-x-4 justify-between w-3/4 ">
                   <p>Gaji</p>
                   <div className="w-3/4">

@@ -11,6 +11,12 @@ import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { Employee } from "@/types/employeeTypes";
+import { validateFile, validations } from "@/utils/fileValidation";
+import IsNotFound from "../notFound";
+import { checkDuplicate } from "@/utils/checkDuplicate";
+import { inputNumberOnly } from "@/utils/numberOnly";
+import { FormatCurrency, HandleCurrencyChange } from "@/utils/setCurrency";
 
 const apiURL = `${process.env.NEXT_PUBLIC_API_BACKEND}`;
 
@@ -62,7 +68,7 @@ export default function Edit() {
 
       await editDataWithFile(data, idKaryawan);
       setTimeout(() => {
-        window.location.href = `/${idKaryawan}`;
+        window.location.href = `/karyawan/${idKaryawan}`;
       }, 3000);
     } catch {
       setLoadSubmit(false);
@@ -118,9 +124,8 @@ export default function Edit() {
   if (notFound) return <IsNotFound />;
 
   return (
-    <div>
-      {<LoadingOffPage />}
-      <div className="w-full pt-8 pr-6">
+    <div className="w-full">
+      {loadSubmit && <LoadingOffPage />}
         <nav>
           <p className="text-3xl font-semibold text-[#282828]">Karyawan</p>
 
@@ -293,10 +298,8 @@ export default function Edit() {
                             <input
                               {...field}
                               id="employeeNumber"
+                              maxLength={11}
                               onKeyDown={inputNumberOnly}
-                              // onChange={(e) =>
-                              //   field.onChange(formatEmployeeNumber(e.target.value))
-                              // } // Format angka sebelum update nilai form
                               className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                             />
                           )}
@@ -379,6 +382,7 @@ export default function Edit() {
                             <input
                               {...field}
                               id="idCardNumber"
+                              maxLength={16}
                               onKeyDown={inputNumberOnly}
                               className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
                             />
@@ -1305,7 +1309,6 @@ export default function Edit() {
             </form>
           </div>
         </div>
-      </div>
     </div>
   );
 }
