@@ -86,20 +86,6 @@ export default function EmployeeList() {
       cell: (ctx) => ctx.getValue(),
     },
     {
-      header: "Berhenti",
-      accessorKey: "resignDate",
-      cell: (ctx) => {
-        const value = ctx.getValue();
-        if (!value) return "-";
-        const date = new Date(value);
-        return date.toLocaleDateString("id-ID", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        });
-      },
-    },
-    {
       id: "email",
       header: "Email Address",
       cell: (ctx: { row: { original: { email: string } } }) => {
@@ -157,7 +143,7 @@ export default function EmployeeList() {
         <CardHead
           Icon={BiSolidUserMinus}
           title={""}
-          jumlah={30}
+          jumlah={safeData.filter((item) => item.status === "RESIGN").length}
           perubahan={"Karyawan Berhenti"}
           itemClass={"items-center"}
           logoClass={"bg-red-200 text-red-900 text-4xl p-2"}
@@ -165,7 +151,7 @@ export default function EmployeeList() {
         <CardHead
           Icon={FaUserClock}
           title={""}
-          jumlah={30}
+          jumlah={safeData.filter((item) => item.status === "ONLEAVE").length}
           perubahan={"Karyawan Cuti"}
           itemClass={"items-center"}
           logoClass={"bg-yellow-200 text-yellow-900 text-4xl p-2"}

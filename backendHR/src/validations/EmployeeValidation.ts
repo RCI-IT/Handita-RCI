@@ -5,7 +5,7 @@ const EmployeeValidation = Joi.object({
     image: Joi.string(),
     idCardNumber: Joi.string().min(16).max(16).pattern(/^\d+$/).required(),
     fullName: Joi.string().required(),
-    birth: Joi.string().alphanum().required(),
+    birth: Joi.string().required(),
     birthDate: Joi.date().iso().required(),
     gender: Joi.string().required(),
     religion: Joi.string().alphanum().required(),

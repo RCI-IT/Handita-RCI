@@ -1,17 +1,19 @@
 "use client";
 import Breadcrumb from "@/components/breadcrumb";
-import { LoadingPage } from "@/handler/loading";
+import { LoadingOffPage, LoadingPage } from "@/handler/loading";
 import { useKaryawanDataDetail } from "@/services/apiKaryawan";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import IsNotFound from "./notFound";
 import DocumentCard from "./documentCard";
-import Link from "next/link";
 import { TbEdit } from "react-icons/tb";
+import { useState } from "react";
 
-const apiURL = process.env.NEXT_PUBLIC_API_BACKEND 
+const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
 export default function DetailKaryawan() {
   const params = useParams(); // Retrieve the dynamic parameters
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const router = useRouter();
 
   const { idKaryawan } = params; // Access the 'id' parameter from the URL
 
@@ -22,6 +24,12 @@ export default function DetailKaryawan() {
   if (!idKaryawan || Array.isArray(idKaryawan)) {
     return <div>Error: Invalid ID provided in the URL query string.</div>;
   }
+  
+
+  const handleEditClick = async () => {
+    setIsLoadingPage(true);
+    await router.push(`/karyawan/${idKaryawan}/edit`);
+  };
 
   // Handle loading state
   if (isLoading) return <LoadingPage />;
@@ -46,6 +54,7 @@ export default function DetailKaryawan() {
 
   return (
     <div className="w-full space-y-5">
+      {isLoadingPage && <LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">Detail Karyawan</p>
         <Breadcrumb />
@@ -54,8 +63,8 @@ export default function DetailKaryawan() {
       <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
         <div className="w-full h-auto flex justify-between items-center py-4 px-4">
           <h3 className="text-xl font-semibold space-y-4">Profil Karyawan</h3>
-          <Link
-            href={`/karyawan/${idKaryawan}/edit`}
+          <button
+            onClick={handleEditClick}
             className="flex space-x-2 hover:text-blue-600 group"
           >
             <TbEdit
@@ -63,7 +72,7 @@ export default function DetailKaryawan() {
                transition duration-200 transform ease-in-out group-hover:scale-105 group-active:scale-75`}
             />
             <p className="text-blue-600">Edit</p>
-          </Link>
+          </button>
         </div>
 
         {/* Garis Pembatas */}
@@ -150,7 +159,17 @@ export default function DetailKaryawan() {
       </div>
 
       <div className="w-full rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] bg-white">
-        <h3 className="text-xl font-semibold py-4 px-4">Jabatan</h3>
+        <h3 className="text-xl font-semibold py-4 px-4">
+          Jabatan (
+          {data.status === "ACTIVE" ? (
+            <span className="text-primaryColor">AKTIF</span>
+          ) : data.status === "ONLEAVE" ? (
+            <span className="text-yellow-600">CUTI</span>
+          ) : (
+            <span className="text-errorFormColor">BERHENTI</span>
+          )}
+          )
+        </h3>
 
         {/* Garis Pembatas */}
         <div className="w-auto border-t-2 border-gray-300"></div>
@@ -161,7 +180,10 @@ export default function DetailKaryawan() {
             <p>{data.position}</p>
             <p className="font-light text-gray-500 text-sm">{data.status}</p>
             <p className="font-light text-gray-500 text-sm">
-              {data.hireDate.slice(0, 10)}
+              {data.hireDate.slice(0, 10)}{" "}
+              {data.status === "RESIGN"
+                ? `s/d ${data.resignDate.slice(0, 10)}`
+                : ""}
             </p>
           </div>
         </div>

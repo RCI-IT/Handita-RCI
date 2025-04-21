@@ -54,7 +54,7 @@ export const useKaryawanData = () => {
     fetcher,
     { fallbackData: fallback || undefined }
   );
-  
+
   const isNotFound =
     data && (data as ErrorResponse).message?.includes("not found");
 
@@ -96,13 +96,13 @@ export const postKaryawanWithFile = async (data: Employee) => {
   // Iterate over properties of data object
   for (const [key, value] of Object.entries(data)) {
     // Jika nilainya undefined, kita skip agar tidak dikirim
-    if (value === undefined) {
+    if (value === undefined || value === "") {
       continue;
     }
 
     // Jika nilainya null, kita ubah jadi string "null" (opsional, bisa disesuaikan)
     if (value === null) {
-      formData.append(key, "null");
+      // formData.append(key, "null");
       continue;
     }
 
@@ -150,7 +150,9 @@ export const postKaryawanWithFile = async (data: Employee) => {
     }
   }
 
-  console.log(formData);
+  console.log("Ini formData:", formData);
+  console.log(Object.fromEntries(formData.entries()));
+
   try {
     const response = await fetch(`${apiURL}/api/employees/`, {
       method: "POST",
@@ -161,13 +163,13 @@ export const postKaryawanWithFile = async (data: Employee) => {
       body: formData,
     });
 
-    mutate(`${apiURL}/api/employees/`);
+    await mutate(`${apiURL}/api/employees`);
     console.log("Data berhasil ditambah");
     return response.status;
   } catch (error) {
     console.error("Error posting data:", error); // Log the error for debugging
     // throw new Error("Error posting data");
-    return (error)
+    return error;
   }
 };
 
@@ -209,7 +211,7 @@ export const editDataWithFile = async (data: Employee, id: string) => {
       method: "PUT",
       body: formData,
     });
-    mutate(`${apiURL}/api/employees/`);
+    await mutate(`${apiURL}/api/employees`);
     console.log("Data berhasil diperbaharui");
     return response;
   } catch (error) {
@@ -226,9 +228,10 @@ export const deleteData = async (id: string) => {
     },
   });
 
+  await mutate(`${apiURL}/api/employees`);
+
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");
   }
-  mutate(`/karyawan/daftar`);
   return response.json();
 };

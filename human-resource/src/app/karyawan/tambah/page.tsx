@@ -825,11 +825,11 @@ export default function TambahKaryawan() {
                             <input
                               {...field}
                               type="date" // Native date input
-                              onChange={(e) => {
-                                // Format the date as yyyy-MM-dd before submitting
-                                const formattedDate = e.target.value; // e.target.value will be in yyyy-MM-dd format
-                                field.onChange(formattedDate); // Set the value to React Hook Form
-                              }}
+                              // onChange={(e) => {
+                              //   // Format the date as yyyy-MM-dd before submitting
+                              //   const formattedDate = e.target.value; // e.target.value will be in yyyy-MM-dd format
+                              //   field.onChange(formattedDate); // Set the value to React Hook Form
+                              // }}
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                               placeholder="Select date"
                             />
