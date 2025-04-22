@@ -59,7 +59,7 @@ export default function Edit() {
     watch,
     formState: { errors },
   } = useForm<Employee>({
-    mode: "onSubmit",
+    mode: "onChange",
   });
 
   const status = watch("status");
@@ -812,7 +812,9 @@ export default function Edit() {
                     </span>
                   </div>
                 </div>
-                {status !== "ACTIVE" && status !== "" && (
+                {status === "ACTIVE" || (employeeData.status === "ACTIVE" && !status) ? (
+                  <></>
+                ) : (
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
                     <p>Tanggal {status === "ONLEAVE" ? "Cuti" : "Berhenti"}</p>
                     <div className="w-3/4">
@@ -826,8 +828,12 @@ export default function Edit() {
                         }}
                         defaultValue={
                           status === "ONLEAVE"
-                            ? employeeData.leaveDate.slice(0, 10)
-                            : employeeData.resignDate.slice(0, 10)
+                            ? employeeData.leaveDate
+                              ? employeeData.leaveDate.slice(0, 10)
+                              : ""
+                            : employeeData.resignDate
+                            ? employeeData.resignDate.slice(0, 10)
+                            : ""
                         }
                         render={({ field }) => (
                           <div className="relative max-w-sm">
