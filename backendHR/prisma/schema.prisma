@@ -54,12 +54,25 @@ model EmployeeDocuments {
 }
 
 model EmployeeSertification {
-  id         String    @id @default(uuid())
-  image      String?
-  employeeId String    @unique
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  employee   Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id               String    @id @default(uuid())
+  image            String?
+  employeeId       String    @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  qualification    String // KUALIFIKASI
+  subQualification String // SUBKUALIFIKASI
+  certificateNo    String? // NO. SERTIFIKAT
+  registrationNo   String? // NO. REGISTRASI
+  level            Int? // LEVEL
+  issueDate        DateTime // MASA AKTIF TERBIT
+  expireDate       DateTime // MASA AKTIF EXPIRED
+  status           String // TERPAKAI/BELUM
+  company          String? // PERUSAHAAN
+  documentLink     String? // LINK DOCUMENT
+  account          String? // Akun
+  password         String? // Password
+  sbu              String? // SBU
+  employee         Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 }
 
 // model Department {
