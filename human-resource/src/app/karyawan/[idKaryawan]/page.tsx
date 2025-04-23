@@ -24,7 +24,6 @@ export default function DetailKaryawan() {
   if (!idKaryawan || Array.isArray(idKaryawan)) {
     return <div>Error: Invalid ID provided in the URL query string.</div>;
   }
-  
 
   const handleEditClick = async () => {
     setIsLoadingPage(true);
@@ -185,6 +184,7 @@ export default function DetailKaryawan() {
                 ? `s/d ${data.resignDate.slice(0, 10)}`
                 : ""}
             </p>
+            {data.status !== "ONLEAVE" ? <></> : <p>Cuti : {data.leaveDate}</p>}
           </div>
         </div>
       </div>

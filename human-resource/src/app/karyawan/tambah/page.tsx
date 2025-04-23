@@ -795,7 +795,7 @@ export default function TambahKaryawan() {
                     </span>
                   </div>
                 </div>
-                {status !== "ACTIVE" && status !== "" && (
+                {(status !== "ACTIVE" || !status) && (
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
                     <p>Tanggal {status === "ONLEAVE" ? "Cuti" : "Berhenti"}</p>
                     <div className="w-3/4">

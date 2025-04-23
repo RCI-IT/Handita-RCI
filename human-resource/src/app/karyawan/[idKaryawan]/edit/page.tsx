@@ -812,22 +812,33 @@ export default function Edit() {
                     </span>
                   </div>
                 </div>
-                {status === "ACTIVE" || (employeeData.status === "ACTIVE" && !status) ? (
+                {status === "ACTIVE" ||
+                (employeeData.status === "ACTIVE" && !status) ? (
                   <></>
                 ) : (
                   <div className="flex items-center space-x-4 justify-between w-3/4 ">
-                    <p>Tanggal {status === "ONLEAVE" ? "Cuti" : "Berhenti"}</p>
+                    <p>
+                      Tanggal{" "}
+                      {status === "ONLEAVE" ||
+                      (employeeData.status === "ONLEAVE" && !status)
+                        ? "Cuti"
+                        : "Berhenti"}
+                    </p>
                     <div className="w-3/4">
                       <Controller
                         name={status === "ONLEAVE" ? "leaveDate" : "resignDate"}
                         control={control}
                         rules={{
                           required: `Tanggal ${
-                            status === "ONLEAVE" ? "Cuti" : "Berhenti"
+                            status === "ONLEAVE" ||
+                            (employeeData.status === "ONLEAVE" && !status)
+                              ? "Cuti"
+                              : "Berhenti"
                           } harus diisi`,
                         }}
                         defaultValue={
-                          status === "ONLEAVE"
+                          status === "ONLEAVE" ||
+                          (employeeData.status === "ONLEAVE" && !status)
                             ? employeeData.leaveDate
                               ? employeeData.leaveDate.slice(0, 10)
                               : ""

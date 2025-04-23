@@ -169,7 +169,11 @@ export const postKaryawanWithFile = async (data: Employee) => {
   } catch (error) {
     console.error("Error posting data:", error); // Log the error for debugging
     // throw new Error("Error posting data");
-    return error;
+    return {
+      success: false,
+      status: 0,
+      message: "Network error. Please check your connection.",
+    };
   }
 };
 
