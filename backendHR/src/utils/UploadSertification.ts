@@ -41,11 +41,18 @@ const limits = {
   fileSize: 2 * 1024 * 1024,
 };
 
-const uploads = multer({
+export const uploads = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: limits,
 }).single("certificate");
+
+
+export const deleteFileIfExists = (filePath: string) => {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
 
 
 // export const UploadSertification = uploads.single("certificate");
