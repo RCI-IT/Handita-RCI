@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const EmployeeValidation = Joi.object({
+const SertificationValidation = Joi.object({
   image: Joi.string(),
   // image: Joi.string().uri().optional().allow(null),
   employeeId: Joi.string().required(), // @unique biasanya dicek di DB
@@ -18,3 +18,5 @@ const EmployeeValidation = Joi.object({
   password: Joi.string().optional().allow(null),
   sbu: Joi.string().optional().allow(null),
 });
+
+export default SertificationValidation;

@@ -47,36 +47,18 @@ export const uploads = multer({
   limits: limits,
 }).single("certificate");
 
-
-export const deleteFileIfExists = (filePath: string) => {
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
+export const uploadedFilePath = (req: any): string | null => {
+  if (req.file && req.file.path) {
+    return req.file.path;
   }
+  return null;
 };
 
-
-// export const UploadSertification = uploads.single("certificate");
-
-  
-// import express from "express";
-// import { uploadCertificate } from "./path/to/uploadCertificate"; // Ganti path sesuai folder kamu
-
-// const app = express();
-
-// app.post("/upload-certificate", (req, res) => {
-//   uploadCertificate(req, res, (err) => {
-//     if (err) {
-//       return res.status(400).json({ error: err.message });
-//     }
-
-//     if (!req.file) {
-//       return res.status(400).json({ error: "No certificate file uploaded." });
-//     }
-
-//     res.json({
-//       message: "Certificate uploaded successfully!",
-//       filename: req.file.filename,
-//       path: req.file.path,
-//     });
-//   });
-// });
+export const fileLocToDelete = ()
+export const deleteFileIfExists = (filePath: string | null) => {
+  if (filePath) {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
