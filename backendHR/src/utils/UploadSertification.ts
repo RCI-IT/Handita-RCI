@@ -54,7 +54,15 @@ export const uploadedFilePath = (req: any): string | null => {
   return null;
 };
 
-export const fileLocToDelete = ()
+const getFilenameOrDefault = (file?: Express.Multer.File): string | null => {
+  return file ? file.filename : null;
+};
+
+export const fileLocToDelete = (filename: any): string | null => {
+  const folder = path.join(BASE_UPLOAD_DIR, filename);
+  return folder;
+};
+
 export const deleteFileIfExists = (filePath: string | null) => {
   if (filePath) {
     if (fs.existsSync(filePath)) {

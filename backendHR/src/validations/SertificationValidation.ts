@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const SertificationValidation = Joi.object({
-  image: Joi.string(),
+  certificate: Joi.string(),
   // image: Joi.string().uri().optional().allow(null),
   employeeId: Joi.string().required(), // @unique biasanya dicek di DB
   qualification: Joi.string().required(),

@@ -10,9 +10,11 @@ import {
 } from "../handle/error";
 import {
   deleteFileIfExists,
+  fileLocToDelete,
   uploadedFilePath,
 } from "../utils/UploadSertification";
 import SertificationValidation from "../validations/SertificationValidation";
+import { fileURLToPath } from "url";
 
 const Sertification = {
   getAll: async (req: Request, res: Response) => {
@@ -67,11 +69,7 @@ const Sertification = {
     try {
       const uploadedFiles = uploadedFilePath(req);
       const { error, value } = SertificationValidation.validate(req.body);
-      const getFilenameOrDefault = (
-        file?: Express.Multer.File
-      ): string | null => {
-        return file ? file.filename : null;
-      };
+
       if (error) {
         deleteFileIfExists(uploadedFiles);
       }
@@ -107,7 +105,7 @@ const Sertification = {
         try {
           newCertificate = await prisma.employeeSertification.create({
             data: {
-              image: uploadedFiles,
+              certificate: uploadedFiles,
               ...value,
             },
           });
@@ -137,18 +135,19 @@ const Sertification = {
       return handleServerError(res, "Error creating. Please try again later.");
     }
   },
-  putCertificate: async (req: Request, res:Response) => {
-    const certificateId = req.params.id
+  putCertificate: async (req: Request, res: Response) => {
+    const certificateId = req.params.id;
     try {
       const { error, value }: any = SertificationValidation.validate(req.body);
 
       if (!error) {
-        const uploadedFiles = uploadedFilePath(req)
-        const existingCertificate = await prisma.employeeSertification.findUnique({
-          where: {
-            id: certificateId,
-          }
-        });
+        const uploadedFiles = uploadedFilePath(req);
+        const existingCertificate =
+          await prisma.employeeSertification.findUnique({
+            where: {
+              id: certificateId,
+            },
+          });
         if (!existingCertificate) {
           return handleUnprocessableEntityResponse(
             res,
@@ -162,21 +161,59 @@ const Sertification = {
             id: certificateId,
           },
           data: {
-            image: uploadedFiles ?? existingCertificate.image,
+            image: uploadedFiles ?? existingCertificate.certificate,
             ...value,
           },
         });
 
-        const deleteFiles = getFilesToDelete(existingCertificate.image);
+        const deleteFiles = fileLocToDelete(existingCertificate.certificate);
 
         // Hapus file lama setelah pembaruan sukses
-        cleanupUploadedFiles(deleteFiles);
+        deleteFileIfExists(deleteFiles);
 
         res.status(StatusCodes.OK).json(updatedEmployee);
       } else {
         // cleanupUploadedFiles(uploadedFiles);
         return handleUnprocessableEntityResponse(res, error.details[0].message);
       }
+    } catch (err: any) {
+      if (err.code === "P1000" && err.message.includes("5432")) {
+        return handleServerError(
+          res,
+          "Unable to connect to the database server. Please try again later."
+        );
+      }
+      return handleServerError(
+        res,
+        "Internal Server Error. Please try again later."
+      );
+    }
+  },
+  deleteCertificate: async(req:Request, res:Response) => {
+    try{
+      const certificateId: string = req.params.id;
+      const certificate = await prisma.employeeSertification.findUniqueOrThrow({
+        where: {
+          id: certificateId,
+        }
+      })
+
+      if(!certificate){
+        return handleNotFoundResponse(res, "Data employee not found");
+      }
+
+      const deleteCertificate = await prisma.employeeSertification.delete({
+        where: {
+          id: certificateId
+        }
+      })
+
+      if(deleteCertificate){
+        deleteFileIfExists(fileURLToPath)
+      }
+
+    }catch (err) {
+
     }
   }
 };
