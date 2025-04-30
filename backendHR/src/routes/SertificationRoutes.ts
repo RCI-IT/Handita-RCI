@@ -7,6 +7,6 @@ export const Sertification: Router = Router();
 
 Sertification.get("/", SertifController.getAll);
 Sertification.get("/:id", SertifController.getById);
-Sertification.post("/", uploads, SertifController.createSertification);
-// Sertification.put("/:id", uploads, SertifController.putSertification);
-// Sertification.delete("/:id", SertifController.deleteEmployee);
+Sertification.post("/", uploads, SertifController.createCertificate);
+Sertification.put("/:id", uploads, SertifController.putCertificate);
+Sertification.delete("/:id", SertifController.deleteCertificate);

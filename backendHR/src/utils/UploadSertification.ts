@@ -3,7 +3,7 @@ import * as path from "path";
 import fs from "fs";
 
 // Base directory untuk upload
-const BASE_UPLOAD_DIR = path.join(__dirname, "../public/sertification");
+const BASE_UPLOAD_DIR = path.join(__dirname, "../public/certificate");
 
 const ensureFolderExists = (folderPath: string) => {
   if (!fs.existsSync(folderPath)) {
@@ -49,7 +49,7 @@ export const uploads = multer({
 
 export const uploadedFilePath = (req: any): string | null => {
   if (req.file && req.file.path) {
-    return req.file.path;
+    return req.file ? req.file.filename : null;
   }
   return null;
 };

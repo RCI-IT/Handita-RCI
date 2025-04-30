@@ -68,6 +68,9 @@ const Sertification = {
   createCertificate: async (req: Request, res: Response) => {
     try {
       const uploadedFiles = uploadedFilePath(req);
+      const documentLink = `${req.protocol}://${req.get(
+        "host"
+      )}/certificate/${uploadedFiles}`;
       const { error, value } = SertificationValidation.validate(req.body);
 
       if (error) {
@@ -106,6 +109,7 @@ const Sertification = {
           newCertificate = await prisma.employeeSertification.create({
             data: {
               certificate: uploadedFiles,
+              documentLink: documentLink,
               ...value,
             },
           });
@@ -189,33 +193,49 @@ const Sertification = {
       );
     }
   },
-  deleteCertificate: async(req:Request, res:Response) => {
-    try{
+  deleteCertificate: async (req: Request, res: Response) => {
+    try {
       const certificateId: string = req.params.id;
       const certificate = await prisma.employeeSertification.findUniqueOrThrow({
         where: {
           id: certificateId,
-        }
-      })
+        },
+      });
 
-      if(!certificate){
+      if (!certificate) {
         return handleNotFoundResponse(res, "Data employee not found");
       }
 
       const deleteCertificate = await prisma.employeeSertification.delete({
         where: {
-          id: certificateId
-        }
-      })
+          id: certificateId,
+        },
+      });
 
-      if(deleteCertificate){
-        deleteFileIfExists(fileURLToPath)
+      if (deleteCertificate) {
+        const fileLoc = fileLocToDelete(certificate.certificate);
+        deleteFileIfExists(fileLoc);
       }
 
-    }catch (err) {
-
+      if (!deleteCertificate)
+        return handleUnprocessableEntityResponse(
+          res,
+          "Gagal menghapus datacertificate"
+        );
+      
+        res.status(StatusCodes.OK).json({
+          message: "Data Karyawan berhasil dihapus."
+        })
+    } catch (err: any) {
+      if (err.code === "P1000" && err.message.includes("5432")){
+        return handleServerError(
+          res, 
+          "Unable to connect to the database server. Please try again later."
+        )
+      }
+      return handleServerError(res, "Error deleting. Please try again later.")
     }
-  }
+  },
 };
 
 module.exports = Sertification;
