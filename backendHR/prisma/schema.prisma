@@ -32,7 +32,7 @@ model Employees {
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @updatedAt
   document       EmployeeDocuments?
-  sertificate    EmployeeSertification[]
+  sertificate    EmployeeCertification[]
 }
 
 enum Status {
@@ -53,7 +53,7 @@ model EmployeeDocuments {
   employee   Employees @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 }
 
-model EmployeeSertification {
+model EmployeeCertification {
   id               String    @id @default(uuid())
   certificate      String?
   employeeId       String

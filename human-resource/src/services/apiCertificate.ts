@@ -2,7 +2,7 @@
 "use client";
 
 import useSWR, { mutate } from "swr";
-import { Employee } from "@/types/employeeTypes";
+import { Certificate } from "@/types/certificateType";
 import { getWithExpiry, setWithExpiry } from "./localStorage";
 import { useEffect, useState } from "react";
 
@@ -11,37 +11,17 @@ interface ErrorResponse {
   message: string;
 }
 const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
-const STORAGE_KEY = "employees";
+const apiEndpoint = '/api/certification'
+const STORAGE_KEY = "certificates";
 const TTL = 3600000;
 
 // Fungsi fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Digunakan jika mengambil data dengan token yang didapat dari auth
-
-// const fetcherWithToken = async <T>(url: string): Promise<T> => {
-//   const token = getTokenWithExpiry();
-//   if (!token) throw new Error('Unauthorized');
-
-//   const res = await fetch(url, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-
-//   if (!res.ok) {
-//     const errorBody = await res.json();
-//     const error = new Error(errorBody.message || 'Error') as Error & { status?: number };
-//     error.status = res.status;
-//     throw error;
-//   }
-
-//   return res.json();
-// };
 
 // Custom hook untuk mengambil data karyawan
-export const useKaryawanData = () => {
-  const [fallback, setFallback] = useState<Employee[] | null>(null);
+export const useCertificate = () => {
+  const [fallback, setFallback] = useState<Certificate[] | null>(null);
 
   useEffect(() => {
     const cached = getWithExpiry(STORAGE_KEY);
@@ -50,8 +30,8 @@ export const useKaryawanData = () => {
     }
   }, []);
 
-  const { data, error } = useSWR<Employee[] | ErrorResponse>(
-    `${apiURL}/api/employees`,
+  const { data, error } = useSWR<Certificate[] | ErrorResponse>(
+    `${apiURL}${apiEndpoint}`,
     fetcher,
     { fallbackData: fallback || undefined }
   );
@@ -74,8 +54,8 @@ export const useKaryawanData = () => {
 };
 
 export const useKaryawanDataDetail = (id: string) => {
-  const { data, error } = useSWR<Employee | ErrorResponse>(
-    `${apiURL}/api/employees/${id}`,
+  const { data, error } = useSWR<Certificate | ErrorResponse>(
+    `${apiURL}${apiEndpoint}/${id}`,
     fetcher
   );
 
@@ -90,7 +70,7 @@ export const useKaryawanDataDetail = (id: string) => {
   };
 };
 
-export const postKaryawanWithFile = async (data: Employee) => {
+export const postKaryawanWithFile = async (data: Certificate) => {
   // Check if 'data' is already a FormData object
   const formData = data instanceof FormData ? data : new FormData();
 
@@ -155,7 +135,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
   console.log(Object.fromEntries(formData.entries()));
 
   try {
-    const response = await fetch(`${apiURL}/api/employees/`, {
+    const response = await fetch(`${apiURL}${apiEndpoint}/`, {
       method: "POST",
       // headers: {
       //   "Content-Type": "multipart/form-data",
@@ -164,7 +144,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
       body: formData,
     });
 
-    await mutate(`${apiURL}/api/employees`);
+    await mutate(`${apiURL}${apiEndpoint}`);
     console.log("Data berhasil ditambah");
     return response.status;
   } catch (error) {
@@ -178,7 +158,7 @@ export const postKaryawanWithFile = async (data: Employee) => {
   }
 };
 
-export const editDataWithFile = async (data: Employee, id: string) => {
+export const editDataWithFile = async (data: Certificate, id: string) => {
   const formData = data instanceof FormData ? data : new FormData();
 
   for (const [key, value] of Object.entries(data)) {
@@ -212,11 +192,11 @@ export const editDataWithFile = async (data: Employee, id: string) => {
   console.log(formData);
 
   try {
-    const response = await fetch(`${apiURL}/api/employees/${id}`, {
+    const response = await fetch(`${apiURL}${apiEndpoint}/${id}`, {
       method: "PUT",
       body: formData,
     });
-    await mutate(`${apiURL}/api/employees`);
+    await mutate(`${apiURL}${apiEndpoint}`);
     console.log("Data berhasil diperbaharui");
     return response;
   } catch (error) {
@@ -226,14 +206,14 @@ export const editDataWithFile = async (data: Employee, id: string) => {
 };
 
 export const deleteData = async (id: string) => {
-  const response = await fetch(`${apiURL}/api/employees/${id}`, {
+  const response = await fetch(`${apiURL}${apiEndpoint}/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-  await mutate(`${apiURL}/api/employees`);
+  await mutate(`${apiURL}${apiEndpoint}`);
 
   if (!response.ok) {
     throw new Error("Gagal menghapus karyawan");

@@ -4,7 +4,7 @@ import dotenv from "dotenv"; // untuk membaca environment
 import { StatusCodes } from "http-status-codes"; // Untuk error handling
 // import userRoutes from "./routes/UserRoutes"
 import { Employee } from "./routes/EmployeeRoutes";
-import { Sertification } from "./routes/SertificationRoutes";
+import { Certification } from "./routes/CertificationRoutes";
 import path from "path";
 const cors = require('cors');
 
@@ -29,7 +29,7 @@ app.use(cors(corsOptions));
 
 // app.use("/v1", userRoutes);
 app.use('/api/employees', Employee);
-app.use('/api/sertification', Sertification);
+app.use('/api/certification', Certification);
 
 
 

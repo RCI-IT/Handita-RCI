@@ -12,14 +12,22 @@ import {
   deleteFileIfExists,
   fileLocToDelete,
   uploadedFilePath,
-} from "../utils/UploadSertification";
-import SertificationValidation from "../validations/SertificationValidation";
+} from "../utils/UploadCertification";
+import CertificationValidation from "../validations/CertificationValidation";
 import { fileURLToPath } from "url";
 
-const Sertification = {
+const Certification = {
   getAll: async (req: Request, res: Response) => {
     try {
-      const certificate = await prisma.employeeSertification.findMany();
+      const certificate = await prisma.employeeCertification.findMany({
+        include: {
+          employee: {
+            select: {
+              fullName: true
+            }
+          }
+        }
+      });
       if (certificate.length > 0) {
         return res.status(StatusCodes.OK).json(certificate);
       } else {
@@ -39,9 +47,16 @@ const Sertification = {
       if (!certificateId) {
         return handleBadRequestResponse(res, "Invalid id certificate");
       }
-      const certificate = await prisma.employeeSertification.findUnique({
+      const certificate = await prisma.employeeCertification.findUnique({
         where: {
           id: certificateId,
+        },
+        include: {
+          employee: {
+            select: {
+              fullName: true,
+            },
+          },
         },
       });
       if (certificate) {
@@ -71,13 +86,13 @@ const Sertification = {
       const documentLink = `${req.protocol}://${req.get(
         "host"
       )}/certificate/${uploadedFiles}`;
-      const { error, value } = SertificationValidation.validate(req.body);
+      const { error, value } = CertificationValidation.validate(req.body);
 
       if (error) {
         deleteFileIfExists(uploadedFiles);
       }
 
-      const existingCertificate = await prisma.employeeSertification.findUnique(
+      const existingCertificate = await prisma.employeeCertification.findUnique(
         {
           where: {
             certificateNo: value.certificateNo,
@@ -91,7 +106,7 @@ const Sertification = {
         );
       } else {
         const existingCertificate2 =
-          await prisma.employeeSertification.findFirst({
+          await prisma.employeeCertification.findFirst({
             where: {
               certificateNo: value.certificateNo,
             },
@@ -106,7 +121,7 @@ const Sertification = {
 
         let newCertificate;
         try {
-          newCertificate = await prisma.employeeSertification.create({
+          newCertificate = await prisma.employeeCertification.create({
             data: {
               certificate: uploadedFiles,
               documentLink: documentLink,
@@ -142,12 +157,12 @@ const Sertification = {
   putCertificate: async (req: Request, res: Response) => {
     const certificateId = req.params.id;
     try {
-      const { error, value }: any = SertificationValidation.validate(req.body);
+      const { error, value }: any = CertificationValidation.validate(req.body);
 
       if (!error) {
         const uploadedFiles = uploadedFilePath(req);
         const existingCertificate =
-          await prisma.employeeSertification.findUnique({
+          await prisma.employeeCertification.findUnique({
             where: {
               id: certificateId,
             },
@@ -196,7 +211,7 @@ const Sertification = {
   deleteCertificate: async (req: Request, res: Response) => {
     try {
       const certificateId: string = req.params.id;
-      const certificate = await prisma.employeeSertification.findUniqueOrThrow({
+      const certificate = await prisma.employeeCertification.findUniqueOrThrow({
         where: {
           id: certificateId,
         },
@@ -206,7 +221,7 @@ const Sertification = {
         return handleNotFoundResponse(res, "Data employee not found");
       }
 
-      const deleteCertificate = await prisma.employeeSertification.delete({
+      const deleteCertificate = await prisma.employeeCertification.delete({
         where: {
           id: certificateId,
         },
@@ -222,20 +237,20 @@ const Sertification = {
           res,
           "Gagal menghapus datacertificate"
         );
-      
-        res.status(StatusCodes.OK).json({
-          message: "Data Karyawan berhasil dihapus."
-        })
+
+      res.status(StatusCodes.OK).json({
+        message: "Data Karyawan berhasil dihapus.",
+      });
     } catch (err: any) {
-      if (err.code === "P1000" && err.message.includes("5432")){
+      if (err.code === "P1000" && err.message.includes("5432")) {
         return handleServerError(
-          res, 
+          res,
           "Unable to connect to the database server. Please try again later."
-        )
+        );
       }
-      return handleServerError(res, "Error deleting. Please try again later.")
+      return handleServerError(res, "Error deleting. Please try again later.");
     }
   },
 };
 
-module.exports = Sertification;
+module.exports = Certification;

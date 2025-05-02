@@ -19,7 +19,11 @@ const inter = Poppins({
   weight: "400",
 });
 
-export const viewport = "width=device-width, initial-scale=1";
+// export const viewport = "width=device-width, initial-scale=1";
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
   title: "PT Reka Cipta Inovasi",

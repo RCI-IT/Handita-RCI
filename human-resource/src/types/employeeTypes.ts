@@ -1,3 +1,5 @@
+import { Certificate } from "crypto";
+
 export type TypeKaryawan = {
   foto: string;
   nama: string;
@@ -41,4 +43,5 @@ export type Employee = {
   createdAt: string;
   updatedAt: string;
   document: Document;
+  certificate?: Certificate;
 };
