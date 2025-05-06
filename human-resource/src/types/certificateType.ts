@@ -9,8 +9,8 @@ export type Certificate = {
   certificateNo: string; // NO. SERTIFIKAT
   registrationNo?: string; // NO. REGISTRASI
   level?: number; // LEVEL
-  issueDate: Date; // MASA AKTIF TERBIT
-  expireDate: Date; // MASA AKTIF EXPIRED
+  issueDate: string; // MASA AKTIF TERBIT
+  expireDate: string; // MASA AKTIF EXPIRED
   status: string; // TERPAKAI/BELUM
   company?: string; // PERUSAHAAN
   documentLink?: string; // LINK DOCUMENT

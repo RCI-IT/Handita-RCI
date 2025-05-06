@@ -17,7 +17,7 @@ export default function CertificateList() {
   const isError = isNotFound || "message" in data;
   const columns: ColumnDef<Certificate>[] = [
     {
-      header: "Nama Lengkap",
+      header: "Nama Pemilik",
       accessorKey: "employee.fullName",
       cell: (ctx) => ctx.getValue(),
     },
@@ -27,14 +27,14 @@ export default function CertificateList() {
       cell: (ctx) => ctx.getValue(),
     },
     {
-        header: "No. Sertifikat",
-        accessorKey: "certificateNo",
-        cell: (ctx) => ctx.getValue()
+      header: "No. Sertifikat",
+      accessorKey: "certificateNo",
+      cell: (ctx) => ctx.getValue(),
     },
     {
-        header: "No. Registrasi", 
-        accessorKey: "registrationNo", 
-        cell: (ctx) => ctx.getValue()
+      header: "No. Registrasi",
+      accessorKey: "registrationNo",
+      cell: (ctx) => ctx.getValue(),
     },
     {
       header: "Terbit",
@@ -63,24 +63,24 @@ export default function CertificateList() {
       cell: (ctx) => ctx.getValue(),
     },
     {
-        id: "Aksi",
-        header: "Aksi",
-        accessorKey: "id",
-        cell: (ctx) => {
-          const link = ctx.row.original.documentLink; // Mengakses data asli dari baris
-          if (!ctx.getValue()) return null; // Menghindari jika idKaryawan tidak ada
-          return (
-            <div className="flex justify-center place-items-center space-x-5">
-              <a href={link} target="_blank">
-                <TbEye className={`text-2xl text-blue-600`} />
-              </a>
-              {/* <button onClick={(e) => handleDelete(idKaryawan, e)}>
+      id: "Aksi",
+      header: "Aksi",
+      accessorKey: "id",
+      cell: (ctx) => {
+        const link = ctx.row.original.documentLink; // Mengakses data asli dari baris
+        if (!ctx.getValue()) return null; // Menghindari jika idKaryawan tidak ada
+        return (
+          <div className="flex justify-center place-items-center space-x-5">
+            <a href={link} target="_blank" rel="noopener noreferrer">
+              <TbEye className={`text-2xl text-blue-600`} />
+            </a>
+            {/* <button onClick={(e) => handleDelete(idKaryawan, e)}>
                 <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
               </button> */}
-            </div>
-          );
-        },
+          </div>
+        );
       },
+    },
   ];
 
   return (

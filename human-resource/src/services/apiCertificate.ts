@@ -19,7 +19,7 @@ const TTL = 3600000;
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 
-// Custom hook untuk mengambil data karyawan
+// Custom hook untuk mengambil data Certificate
 export const useCertificate = () => {
   const [fallback, setFallback] = useState<Certificate[] | null>(null);
 
@@ -53,7 +53,7 @@ export const useCertificate = () => {
   };
 };
 
-export const useKaryawanDataDetail = (id: string) => {
+export const useCertificateDataDetail = (id: string) => {
   const { data, error } = useSWR<Certificate | ErrorResponse>(
     `${apiURL}${apiEndpoint}/${id}`,
     fetcher
@@ -70,7 +70,7 @@ export const useKaryawanDataDetail = (id: string) => {
   };
 };
 
-export const postKaryawanWithFile = async (data: Certificate) => {
+export const postCertificateWithFile = async (data: Certificate) => {
   // Check if 'data' is already a FormData object
   const formData = data instanceof FormData ? data : new FormData();
 
@@ -216,7 +216,7 @@ export const deleteData = async (id: string) => {
   await mutate(`${apiURL}${apiEndpoint}`);
 
   if (!response.ok) {
-    throw new Error("Gagal menghapus karyawan");
+    throw new Error("Gagal menghapus Certificate");
   }
   return response.json();
 };
