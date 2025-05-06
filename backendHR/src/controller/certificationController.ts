@@ -14,7 +14,6 @@ import {
   uploadedFilePath,
 } from "../utils/UploadCertification";
 import CertificationValidation from "../validations/CertificationValidation";
-import { fileURLToPath } from "url";
 
 const Certification = {
   getAll: async (req: Request, res: Response) => {

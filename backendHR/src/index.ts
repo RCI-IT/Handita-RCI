@@ -53,7 +53,8 @@ app.use('/ijazah', express.static(path.join(__dirname, 'public/uploads/diplomas'
 app.use('/kartukeluarga', express.static(path.join(__dirname, 'public/uploads/familyCards')));
 app.use('/ktp', express.static(path.join(__dirname, 'public/uploads/idCards')));
 app.use('/npwp', express.static(path.join(__dirname, 'public/uploads/taxCards')));
-app.use('/certificate', express.static(path.join(__dirname, 'public/certificate')));
+// app.use('/certificate', express.static(path.join(__dirname, 'public/certificate')));
+app.get('/certificate/:filename', customHandlerPDF);
 
 // Error Handling
 app.use((_req: Request, res: Response) => {
