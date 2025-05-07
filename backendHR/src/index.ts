@@ -6,6 +6,8 @@ import { StatusCodes } from "http-status-codes"; // Untuk error handling
 import { Employee } from "./routes/EmployeeRoutes";
 import { Certification } from "./routes/CertificationRoutes";
 import path from "path";
+const fs = require('fs');
+
 const cors = require('cors');
 
 // import {Employee} from "./routes/EmployeeRoutes";
@@ -53,8 +55,18 @@ app.use('/ijazah', express.static(path.join(__dirname, 'public/uploads/diplomas'
 app.use('/kartukeluarga', express.static(path.join(__dirname, 'public/uploads/familyCards')));
 app.use('/ktp', express.static(path.join(__dirname, 'public/uploads/idCards')));
 app.use('/npwp', express.static(path.join(__dirname, 'public/uploads/taxCards')));
-// app.use('/certificate', express.static(path.join(__dirname, 'public/certificate')));
-app.get('/certificate/:filename', customHandlerPDF);
+
+// Middleware untuk menyetel header Content-Disposition ke 'inline' untuk file PDF
+app.use('/certificate', (req, res, next) => {
+  if (req.path.endsWith('.pdf')) {
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Content-Type', 'application/pdf');
+  }
+  next();
+});
+
+// Static file handler
+app.use('/certificate', express.static(path.join(__dirname, 'public/certificate')));
 
 // Error Handling
 app.use((_req: Request, res: Response) => {

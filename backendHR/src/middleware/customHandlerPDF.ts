@@ -1,8 +1,9 @@
 // pdfHandler.js
-import path from ".../path"
+import { Request, Response } from 'express';
+import path from "path"
 import fs from "fs";
 
-const mimeTypeMap = {
+const mimeTypeMap: Record<string, string> = {
   '.pdf': 'application/pdf',
   '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -11,7 +12,7 @@ const mimeTypeMap = {
   '.png': 'image/png',
 };
 
-const serveCertificateFile = (req, res) => {
+const ServeCertificateFile = (req: Request, res: Response) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, 'public/certificate', filename);
 
@@ -29,4 +30,5 @@ const serveCertificateFile = (req, res) => {
   fs.createReadStream(filePath).pipe(res);
 };
 
-module.exports = serveCertificateFile;
+// export default ServeCertificateFile;
+module.exports = ServeCertificateFile;
