@@ -7,7 +7,8 @@ import { LoadingPage } from "@/handler/loading";
 import { useCertificate } from "@/services/apiCertificate";
 import { Certificate } from "@/types/certificateType";
 import { ColumnDef } from "@tanstack/react-table";
-import { TbEye } from "react-icons/tb";
+import Link from "next/link";
+import { TbEye, TbPencil } from "react-icons/tb";
 
 export default function CertificateList() {
   const { data, error, isLoading, isNotFound } = useCertificate();
@@ -68,12 +69,16 @@ export default function CertificateList() {
       accessorKey: "id",
       cell: (ctx) => {
         const link = ctx.row.original.documentLink; // Mengakses data asli dari baris
+        const id = ctx.row.original.id;
         if (!ctx.getValue()) return null; // Menghindari jika idKaryawan tidak ada
         return (
           <div className="flex justify-center place-items-center space-x-5">
             <a href={link} target="_blank" rel="noopener noreferrer">
               <TbEye className={`text-2xl text-blue-600`} />
             </a>
+            <Link href={`/certificate/${id}`}>
+              <TbPencil className={`text-2xl text-blue-600`} />
+            </Link>
             {/* <button onClick={(e) => handleDelete(idKaryawan, e)}>
                 <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
               </button> */}

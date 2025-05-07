@@ -1,20 +1,25 @@
 "use client";
 
 import Breadcrumb from "@/components/breadcrumb";
-import { LoadingOffPage } from "@/handler/loading";
+import IsNotFound from "@/handler/isNotFound";
+import { LoadingOffPage, LoadingPage } from "@/handler/loading";
 import {
-  postCertificateWithFile,
   useCertificate,
+  useCertificateDataDetail,
 } from "@/services/apiCertificate";
 import { useKaryawanData } from "@/services/apiKaryawan";
 import { Certificate } from "@/types/certificateType";
 import { checkDuplicate } from "@/utils/checkDuplicate";
 import { inputNumberOnly } from "@/utils/numberOnly";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 
-export default function CertificateAdd() {
+export default function Edit() {
+  const params = useParams<{ idCertificate: string }>();
+  const { idCertificate } = params;
+
   const {
     control,
     handleSubmit,
@@ -34,7 +39,7 @@ export default function CertificateAdd() {
       setLoadSubmit(true);
       // Tampilkan data yang diinput di console
       console.log("Data yang disubmit: ", data);
-      await postCertificateWithFile(data);
+      //   await postCertificateWithFile(data);
       setLoadSubmit(false);
       alert("Data sudah di submit");
     } catch {
@@ -43,6 +48,9 @@ export default function CertificateAdd() {
     }
   };
 
+  const { data, error, isLoading, isNotFound } =
+    useCertificateDataDetail(idCertificate);
+  const certificateData = data as Certificate;
   const {
     data: dataKaryawan,
     error: err1,
@@ -56,6 +64,9 @@ export default function CertificateAdd() {
     isNotFound: notFound2,
   } = useCertificate();
 
+  if (error) return <IsNotFound />;
+  if (isLoading) return <LoadingPage />;
+  if (isNotFound) return <IsNotFound />;
   if (err1 || load1 || notFound1) return "Data Karyawan Tidak Ada";
   if (err2 || load2 || notFound2) return "Tidak bisa dikonfirmasi";
 
@@ -177,6 +188,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Nama karyawan harus di isi",
                 }}
+                defaultValue={certificateData.employeeId}
                 render={({ field }) => (
                   <Select
                     options={karyawanOptions}
@@ -217,7 +229,7 @@ export default function CertificateAdd() {
                     return true;
                   },
                 }}
-                defaultValue=""
+                defaultValue={certificateData.certificateNo}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -239,7 +251,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Kualifikasi harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.qualification}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -261,7 +273,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Sub-Kualifikasi harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.subQualification}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -285,7 +297,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Sub-Kualifikasi harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.registrationNo}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -310,7 +322,7 @@ export default function CertificateAdd() {
                   required: "Sub-Kualifikasi harus diisi",
                   max: 7,
                 }}
-                defaultValue={1}
+                defaultValue={certificateData.level}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -337,7 +349,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Tanggal terbit harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.issueDate.slice(0, 10)}
                 render={({ field }) => (
                   <div className="relative max-w-sm">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -374,11 +386,11 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Tanggal terbit harus diisi",
                   validate: (value) => {
-                    if (issueDate > value)
+                    if (value < issueDate)
                       return "Tanggal expired tidak boleh sebelum tanggal terbit!";
                   },
                 }}
-                defaultValue=""
+                defaultValue={certificateData.expireDate.slice(0, 10)}
                 render={({ field }) => (
                   <div className="relative max-w-sm">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -412,10 +424,9 @@ export default function CertificateAdd() {
               <Controller
                 name="status"
                 control={control}
-                defaultValue="BELUM TERPAKAI"
+                defaultValue={certificateData.status}
                 render={({ field }) => {
                   const isChecked = field.value === "terpakai";
-
                   const handleChange = () => {
                     field.onChange(isChecked ? "belum terpakai" : "terpakai");
                   };
@@ -450,30 +461,31 @@ export default function CertificateAdd() {
               </span>
             </div>
           </div>
-          {status === "terpakai" && (
-            <div className="flex items-center space-x-4 justify-between w-3/4 ">
-              <p>Perusahaan</p>
-              <div className="w-3/4">
-                <Controller
-                  name="company"
-                  control={control}
-                  rules={{
-                    required: "Jika terpakai, isi nama perusahaan",
-                  }}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
-                    />
-                  )}
-                />
-                <span className="text-errorFormColor text-xs">
-                  {errors.company && <p>{errors.company.message}</p>}
-                </span>
+          {(certificateData.status === "terpakai" && status === null) ||
+            (status === "terpakai" && (
+              <div className="flex items-center space-x-4 justify-between w-3/4 ">
+                <p>Perusahaan</p>
+                <div className="w-3/4">
+                  <Controller
+                    name="company"
+                    control={control}
+                    rules={{
+                      required: "Jika terpakai, isi nama perusahaan",
+                    }}
+                    defaultValue={certificateData.company}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className="w-full ring-1 ring-gray-400 rounded-md px-2 py-2"
+                      />
+                    )}
+                  />
+                  <span className="text-errorFormColor text-xs">
+                    {errors.company && <p>{errors.company.message}</p>}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
 
           {/* Jika ada akun */}
           <p className="bg-blue-700 text-white capitalize">Akun SKK</p>
@@ -486,7 +498,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Sub-Kualifikasi harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.account}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -508,7 +520,7 @@ export default function CertificateAdd() {
                 rules={{
                   required: "Sub-Kualifikasi harus diisi",
                 }}
-                defaultValue=""
+                defaultValue={certificateData.password}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -520,42 +532,6 @@ export default function CertificateAdd() {
                 {errors.password && <p>{errors.password.message}</p>}
               </span>
             </div>
-          </div>
-
-          {/* BUTTON */}
-          <div className="w-full p-6 border-t-2 border-t-gray-200 flex justify-end">
-            <button
-              type="submit"
-              className={`w-24 rounded-lg border-2 flex justify-center items-center dark:placeholder-gray-400 font-medium transform duration-200 transition
-              ${
-                loadSubmit
-                  ? "text-slate-200 border-gray-200 dark:border-gray-600 disabled cursor-none scale-95"
-                  : "hover:border-blueBase hover:text-blueBase hover:bg-blueBg border-gray-600 dark:border-gray-600 scale-100"
-              }
-            `}
-            >
-              {loadSubmit ? (
-                <svg
-                  aria-hidden="true"
-                  role="status"
-                  className="inline w-4 h-4 text-blueBase animate-spin"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="#E5E7EB"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ) : (
-                <p>Save</p>
-              )}
-            </button>
           </div>
         </form>
       </div>
