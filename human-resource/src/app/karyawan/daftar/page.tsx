@@ -9,19 +9,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import { BiSolidUserMinus } from "react-icons/bi";
 import { FaUserClock, FaUserPlus } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
-import { MdOutlineDeleteForever } from "react-icons/md";
 import { TbEye } from "react-icons/tb";
 import { Employee } from "@/types/employeeTypes";
-import { LoadingOffPage, LoadingPage } from "@/handler/loading";
+import { LoadingPage } from "@/handler/loading";
 import IsNotFound from "@/handler/isNotFound";
 import { useKaryawanData } from "@/services/apiKaryawan";
-import { useDelete } from "@/hooks/useDelete";
 import DeleteButton from "@/components/deleteButton";
 
 const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
 
 export default function EmployeeList() {
-  const { handleDelete, isDeleting } = useDelete();
   const { data, error, isLoading, isNotFound } = useKaryawanData();
 
   if (isLoading) return <LoadingPage />;
@@ -106,11 +103,8 @@ export default function EmployeeList() {
             <Link href={`/karyawan/${idKaryawan}`}>
               <TbEye className={`text-2xl text-blue-600`} />
             </Link>
-            <button onClick={(e) => handleDelete(idKaryawan, e)}>
-              <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
-            </button>
             <DeleteButton
-              url={`/api/employees/${idKaryawan}`}
+              url={`/employees/${idKaryawan}`}
               confirmMessage={`Yakin ingin menghapus ${ctx.row.original.fullName}?`}
               onDeleted={() => console.log("Berhasil dihapus")}
             >
@@ -124,7 +118,6 @@ export default function EmployeeList() {
 
   return (
     <div className="w-full">
-      {isDeleting == true && <LoadingOffPage />}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">
           Manajemen Karyawan

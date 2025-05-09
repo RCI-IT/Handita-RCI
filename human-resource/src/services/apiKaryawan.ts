@@ -42,18 +42,23 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 // Custom hook untuk mengambil data karyawan
 export const useKaryawanData = () => {
   const [fallback, setFallback] = useState<Employee[] | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     const cached = getWithExpiry(STORAGE_KEY);
     if (cached) {
       setFallback(cached);
     }
+    setInitialLoad(true);
   }, []);
 
-  const { data, error } = useSWR<Employee[] | ErrorResponse>(
-    `${apiURL}/api/employees`,
+  const { data, error, mutate } = useSWR<Employee[] | ErrorResponse>(
+    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/employees`,
     fetcher,
-    { fallbackData: fallback || undefined }
+    {
+      fallbackData: initialLoad ? fallback || undefined : undefined,
+      revalidateOnMount: true,
+    }
   );
 
   const isNotFound =
@@ -63,6 +68,7 @@ export const useKaryawanData = () => {
     if (data && !("message" in data)) {
       setWithExpiry(STORAGE_KEY, data, TTL);
     }
+    setInitialLoad(false);
   }, [data]);
 
   return {
@@ -70,6 +76,7 @@ export const useKaryawanData = () => {
     error,
     isLoading: !data && !error,
     isNotFound,
+    refetch: mutate,
   };
 };
 

@@ -1,16 +1,16 @@
 "use client";
 
 import Breadcrumb from "@/components/breadcrumb";
+import DeleteButton from "@/components/deleteButton";
 import Table from "@/components/tabel";
 import IsNotFound from "@/handler/isNotFound";
-import { LoadingOffPage, LoadingPage } from "@/handler/loading";
+import { LoadingPage } from "@/handler/loading";
 import { useCertificate } from "@/services/apiCertificate";
 import { Certificate } from "@/types/certificateType";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { MdOutlineDeleteForever } from "react-icons/md";
+// import { MdOutlineDeleteForever } from "react-icons/md";
 import { TbEye, TbPencil } from "react-icons/tb";
-
 
 export default function CertificateList() {
   const { data, error, isLoading, isNotFound } = useCertificate();
@@ -82,6 +82,11 @@ export default function CertificateList() {
             <Link href={`/certificate/${id}`}>
               <TbPencil className={`text-2xl text-blue-600`} />
             </Link>
+            <DeleteButton
+              url={`/certification/${id}`}
+              confirmMessage={`Yakin ingin menghapus ${ctx.row.original.certificateNo}`}
+              onDeleted={() => console.log("Berhasil dihapus")}
+            />
             {/* <button onClick={(e) => handleDelete(id, e)}>
                 <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
               </button> */}

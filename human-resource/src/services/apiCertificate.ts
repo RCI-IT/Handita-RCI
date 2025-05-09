@@ -22,18 +22,23 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 // Custom hook untuk mengambil data Certificate
 export const useCertificate = () => {
   const [fallback, setFallback] = useState<Certificate[] | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     const cached = getWithExpiry(STORAGE_KEY);
     if (cached) {
       setFallback(cached);
     }
+    setInitialLoad(true);
   }, []);
 
-  const { data, error } = useSWR<Certificate[] | ErrorResponse>(
-    `${apiURL}${apiEndpoint}`,
+  const { data, error, mutate } = useSWR<Certificate[] | ErrorResponse>(
+    `${process.env.NEXT_PUBLIC_API_BACKEND}/api/certification`,
     fetcher,
-    { fallbackData: fallback || undefined }
+    {
+      fallbackData: initialLoad ? fallback || undefined : undefined,
+      revalidateOnMount: true,
+    }
   );
 
   const isNotFound =
@@ -43,6 +48,7 @@ export const useCertificate = () => {
     if (data && !("message" in data)) {
       setWithExpiry(STORAGE_KEY, data, TTL);
     }
+    setInitialLoad(false);
   }, [data]);
 
   return {
@@ -50,6 +56,7 @@ export const useCertificate = () => {
     error,
     isLoading: !data && !error,
     isNotFound,
+    refetch: mutate,
   };
 };
 

@@ -1,12 +1,11 @@
-// src/hooks/useDelete.ts
 import { useState, useEffect } from "react";
-import { deleteData } from "@/services/deleteData";
 
 type UseDeleteOptions = {
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
   confirmMessage?: string;
   confirm?: boolean;
+  reloadOnSuccess?: boolean;
 };
 
 export function useDelete(options?: UseDeleteOptions) {
@@ -34,15 +33,31 @@ export function useDelete(options?: UseDeleteOptions) {
 
     setIsDeleting(true);
     try {
-      await deleteData(url);
+      const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
+      const response = await fetch(`${apiURL}/api${url}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal menghapus data");
+      }
+
+      await response.json(); // optional, tergantung respons API
+
       options?.onSuccess?.();
-      window.location.reload(); // ⬅ Tambahkan ini
+
+      if (options?.reloadOnSuccess) {
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Gagal menghapus:", error);
       alert("Terjadi kesalahan saat menghapus.");
       options?.onError?.(error);
     } finally {
-      setIsDeleting(false);
+      // setIsDeleting(false);
     }
   };
 

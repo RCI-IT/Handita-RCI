@@ -1,12 +1,12 @@
 import React from "react";
 import { useDelete } from "@/hooks/useDelete";
-import LoadingOffPage from "@/components/loading/LoadingOffPage";
+import { LoadingOffPage } from "@/handler/loading";
 
 interface DeleteButtonProps {
   url: string;
   onDeleted?: () => void;
   confirmMessage?: string;
-  reloadOnSuccess?: boolean; // <-- opsional override reload
+  reloadOnSuccess?: boolean; // bisa override reload halaman
   children?: React.ReactNode;
 }
 
@@ -14,7 +14,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({
   url,
   onDeleted,
   confirmMessage,
-  reloadOnSuccess,
+  reloadOnSuccess = true, // default reload halaman setelah hapus
   children = "Hapus",
 }) => {
   const { handleDelete, isDeleting } = useDelete({
