@@ -98,13 +98,14 @@ export default function Edit() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="flex w-3/4 items-center justify-between">
             <p>File</p>
-            <label className="w-3/4">
+            <div className="w-3/4 flex space-x-2">
               <Controller
                 name="certificate"
                 control={control}
+                defaultValue={null}
                 rules={{ required: "Tambahkan file input" }}
                 render={({ field }) => (
-                  <div className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2">
                     {field.value && field.value instanceof File ? (
                       <>
                         <a
@@ -134,6 +135,14 @@ export default function Edit() {
                       </>
                     ) : (
                       <>
+                        <a
+                          href={certificateData.documentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline focus:outline-none focus:ring focus:border-blue-300"
+                        >
+                          File Sertifikat
+                        </a>
                         <p
                           className="text-sm text-gray-50 rounded-lg cursor-pointer px-2 py-2 bg-blueBase dark:text-gray-400
                                    transition transform duration-200 ease-in-out hover:scale-100 active:scale-95
@@ -141,12 +150,6 @@ export default function Edit() {
                         >
                           Click to Upload File
                         </p>
-                        <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                          Image
-                        </span>
-                        <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
-                          {"<"} 2 MB
-                        </span>
                       </>
                     )}
                     <input
@@ -169,10 +172,17 @@ export default function Edit() {
                         }
                       }}
                     />
-                  </div>
+                  </label>
                 )}
               />
-            </label>
+
+              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#EBF2FD] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                Image
+              </span>
+              <span className="text-sm text-blueBase rounded-lg border-2 border-gray-50 px-2 py-2 bg-[#FFFFFF] dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 font-medium">
+                {"<"} 2 MB
+              </span>
+            </div>
             {errors.certificate && (
               <p className="text-red-500 text-sm">
                 {errors.certificate.message}

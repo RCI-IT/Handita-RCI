@@ -3,15 +3,18 @@
 import Breadcrumb from "@/components/breadcrumb";
 import Table from "@/components/tabel";
 import IsNotFound from "@/handler/isNotFound";
-import { LoadingPage } from "@/handler/loading";
+import { LoadingOffPage, LoadingPage } from "@/handler/loading";
 import { useCertificate } from "@/services/apiCertificate";
 import { Certificate } from "@/types/certificateType";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { MdOutlineDeleteForever } from "react-icons/md";
 import { TbEye, TbPencil } from "react-icons/tb";
+
 
 export default function CertificateList() {
   const { data, error, isLoading, isNotFound } = useCertificate();
+  // const { handleDelete, isDeleting } = useDeleteLoad();
 
   if (isLoading) return <LoadingPage />;
   if (error) return <IsNotFound />;
@@ -79,7 +82,7 @@ export default function CertificateList() {
             <Link href={`/certificate/${id}`}>
               <TbPencil className={`text-2xl text-blue-600`} />
             </Link>
-            {/* <button onClick={(e) => handleDelete(idKaryawan, e)}>
+            {/* <button onClick={(e) => handleDelete(id, e)}>
                 <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
               </button> */}
           </div>
@@ -90,6 +93,7 @@ export default function CertificateList() {
 
   return (
     <div className="w-full space-y-5">
+      {/* {isDeleting && <LoadingOffPage/>} */}
       <nav>
         <p className="text-3xl font-semibold text-[#282828]">
           Sertifikat Keahlian Kerja (SKK){" "}

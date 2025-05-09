@@ -205,18 +205,3 @@ export const editDataWithFile = async (data: Certificate, id: string) => {
   }
 };
 
-export const deleteData = async (id: string) => {
-  const response = await fetch(`${apiURL}${apiEndpoint}/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  await mutate(`${apiURL}${apiEndpoint}`);
-
-  if (!response.ok) {
-    throw new Error("Gagal menghapus Certificate");
-  }
-  return response.json();
-};

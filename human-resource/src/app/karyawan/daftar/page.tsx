@@ -15,12 +15,13 @@ import { Employee } from "@/types/employeeTypes";
 import { LoadingOffPage, LoadingPage } from "@/handler/loading";
 import IsNotFound from "@/handler/isNotFound";
 import { useKaryawanData } from "@/services/apiKaryawan";
-import { useDeleteEmployee } from "@/hooks/useDeleteEmployee";
+import { useDelete } from "@/hooks/useDelete";
+import DeleteButton from "@/components/deleteButton";
 
 const apiURL = process.env.NEXT_PUBLIC_API_BACKEND;
 
 export default function EmployeeList() {
-  const { handleDelete, isDeleting } = useDeleteEmployee();
+  const { handleDelete, isDeleting } = useDelete();
   const { data, error, isLoading, isNotFound } = useKaryawanData();
 
   if (isLoading) return <LoadingPage />;
@@ -108,6 +109,13 @@ export default function EmployeeList() {
             <button onClick={(e) => handleDelete(idKaryawan, e)}>
               <MdOutlineDeleteForever className={`text-2xl text-red-900`} />
             </button>
+            <DeleteButton
+              url={`/api/employees/${idKaryawan}`}
+              confirmMessage={`Yakin ingin menghapus ${ctx.row.original.fullName}?`}
+              onDeleted={() => console.log("Berhasil dihapus")}
+            >
+              Hapus Karyawan
+            </DeleteButton>
           </div>
         );
       },
